@@ -1,0 +1,703 @@
+{% extends "rentcar/layout/base_layout_profiss.html" %}
+{% load static %}
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{config}} - Veículos!
+{% endblock title %}
+
+<!-- Css extra -->
+{% block cssExtra %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<!-- Turf.js for distance calculations -->
+<script src="https://unpkg.com/@turf/turf"></script>
+
+<script>
+    var options = {
+        valueNames: [ 'modelo', 'preco','placa','marca' ],
+        item: `<div class="titulo text-truncate"><span class="marca"></span> <span class="modelo"></span></div> 
+        <div class="placa"></div><div class="preco text-end badge bg-warning float-end mb-2"></div>
+        `
+    };
+
+    var veiculoList = new List('veiculos-items', options);
+
+    // Configura os botões de ordenação
+    var sortButtons = document.querySelectorAll('.sort');
+    var selectsort=[]
+    sortButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var sortBy = button.getAttribute('data-sort');
+            if (!selectsort.includes(sortBy)){
+                $('.filtros-item').html(sortBy)
+                selectsort.push(sortBy)
+                $(".tipo_filtro").addClass('open')
+            }
+            
+            veiculoList.sort(sortBy, { order: "asc" });
+        });
+    });
+
+    $('.limpar-filtros').click(function (e) {
+        e.preventDefault()
+        $(".tipo_filtro").removeClass('open')
+    })
+    // Configura a caixa de pesquisa
+    var searchInput = document.querySelector('#q');
+    searchInput.addEventListener('input', function() {
+        veiculoList.search(searchInput.value);
+    });
+</script>
+
+<script>
+    var form=$('#form-veiculo')
+    var actionNovo=$('#form-veiculo').attr('action')
+    var actionupdate=""
+    // Inicializa o mapa
+    var map = L.map('map');
+    actualizaLista()
+
+    function actualizaLista() {
+        $('#alerta-prof').addClass('proccessing')
+        $('.list').html('')
+        fetch('/rentcar/veiculos-actualizar/')
+        .then(response => response.json())
+        .then(data => {
+            data.veiculo.forEach(veiculo => {
+                $('.list').append(`
+                    <div class="veiculo">
+                        <div class="veiculo-imagem">
+                            <img src="${veiculo.imagem}" alt="${veiculo.marca} ${veiculo.modelo}">
+                        </div>
+
+                        <div class="veiculo-content w-100 d-flex justify-content-between">
+                            <div class="info w-100">
+                                <div class="d-flex justify-content-between w-100 gap-2">
+                                    <div class="titulo text-truncate "><span class="marca">${veiculo.marca}</span> <span class="modelo">${veiculo.modelo}</span></div>
+                                    <div class="action text-end d-flex gap-2">
+                                        <a data-placa="${veiculo.placa}" class="edit-veiculo" href="${veiculo.url}"><i class="fa fa-edit"></i></a>
+                                        <a data-placa="${veiculo.placa}" class="delete-veiculo" href=""><i class="fa fa-trash-can"></i></a>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex gap-2 justify-content-between">
+                                    <div class="pessoas"><i class="fa fa-users"></i> ${veiculo.pessoas}</div>
+                                    <div class="portas"><i class="fa fa-door-open"></i> ${veiculo.portas}</div>
+                                    <div class="ano"><i class="fa fa-calendar-day"></i> ${veiculo.ano}</div>
+                                </div>
+                                <div class="d-flex w-100 justify-content-between">
+                                    <div class="placa text-uppercase">${veiculo.placa}</div>
+                                    <div class="preco text-end badge bg-warning float-end mb-2">${veiculo.preco} Mt/ ${veiculo.condicao}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `)
+                $('#alerta-prof').removeClass('proccessing')
+            });
+            novo()
+        });
+        novo()
+    }
+
+    function novo() {
+        $('#novo-rentcar').click(function (e) {
+            e.preventDefault()
+            reset();
+            $('#img').html(``)
+            
+            $('#veiculos').toggleClass('open')
+            $('.modificar-veiculo').toggleClass('open')
+            maps(0,0, '', '',map)
+            
+            form.submit(function (e) {
+                e.preventDefault()
+                $('#alerta-prof').addClass('proccessing')
+                var formData = $(this).serialize();
+                
+                $.ajax({
+                    url: actionNovo, // URL para onde enviar os dados
+                    type: 'POST', // Método HTTP para enviar os dados
+                    data: formData, // Dados a serem enviados
+                    processData: false, // Não processar os dados (jQuery automaticamente faz isso)
+                    contentType: false, 
+                    success: function(response) {
+                        $('#alerta-prof').removeClass('proccessing')
+                        $('#alerta-prof').addClass('message')
+                        var message=$('#message').html(`<div class="text-smart">${response.message}</div>`)
+                        // O que fazer com a resposta do servidor
+                        setTimeout(function name(params) {
+                            $('#alerta-prof').removeClass('message')
+                            $('#veiculos').addClass('open')
+                            $('.modificar-veiculo').removeClass('open')
+                            actualizaLista()
+                        },5000)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#alerta-prof').removeClass('proccessing')
+                        $('#alerta-prof').addClass('message')
+                        var message=$('#message').html(`<div class="text-danger">${error.message}</div>`)
+                        setTimeout(function name(params) {
+                            $('#alerta-prof').removeClass('message')
+                            $('#veiculos').addClass('open')
+                            $('.modificar-veiculo').removeClass('open')
+                            
+                        },5000)
+                    }
+                });
+            })
+        })
+
+        $('.edit-veiculo').click(function (e) {
+            e.preventDefault()
+            reset();
+            $('#veiculos').toggleClass('open')
+            $('.modificar-veiculo').toggleClass('open')
+            maps("","", '', '',map)
+            form.submit(function (e) {
+                e.preventDefault()
+                var formData = $(this).serialize();
+                console.log(formData)
+                $('#alerta-prof').toggleClass('proccessing')
+                // Adicionar o token CSRF para todas as solicitações AJAX
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        var csrftoken = $('meta[name="csrf-token"]').attr('content');
+                        if (!this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                });
+                $.ajax({
+                    url: $(this).attr('action'), // URL para onde enviar os dados
+                    type: 'POST', // Método HTTP para enviar os dados
+                    data: formData, // Dados a serem enviados
+                    processData: false, // Não processar os dados (jQuery automaticamente faz isso)
+                    contentType: false, 
+                    success: function(response) {
+                        $('#alerta-prof').removeClass('proccessing')
+                        $('#alerta-prof').addClass('message')
+                        var message=$('#message').html(`<div class="text-smart">${response.message}</div>`)
+                        setTimeout(function (params) {
+                            $('#alerta-prof').removeClass('message')
+                            $('#veiculos').addClass('open')
+                            $('.modificar-veiculo').removeClass('open')
+                            actualizaLista()
+                        },5000)
+                    },
+                    error: function(xhr, status, error) {
+                        $('#alerta-prof').removeClass('proccessing')
+                        $('#alerta-prof').addClass('message')
+                        var message=$('#message').html(`<div class="text-danger">${error.message}</div>`)
+                        setTimeout(function name(params) {
+                            $('#alerta-prof').removeClass('message')
+                            $('#veiculos').addClass('open')
+                            $('.modificar-veiculo').removeClass('open')
+                            
+                        },5000)
+                    }
+                });
+            
+            })
+            
+            var placa=$(this).data('placa')
+            function selecionarOpcao(valor, id) {
+                var select = id
+                var option = Array.from(select.options).find(option => option.value === valor);
+                if (option) {
+                    select.value = valor;
+                }else{
+                    select.value = valor;
+                }
+            }
+            $('#alerta-prof').addClass('proccessing')
+            fetch('/rentcar/veiculo/'+placa+'/')
+            .then(response => response.json())
+            .then(data => {
+                data.veiculo.forEach(veiculo => {
+                    actionupdate=veiculo.url
+                    form.attr('action', actionupdate)
+                    $('#modelo').val(veiculo.modelo)
+                    $('#ano').val(veiculo.ano)
+                    $('#preco').val(veiculo.preco)
+                    $('#numero_pessoas').val(veiculo.numero_pessoas)
+                    $('#numero_portas').val(veiculo.numero_portas)
+                    $('#placa').val(veiculo.placa)
+                    $('#distancia_entrega').val(veiculo.distancia_entrega)
+                    $('#distancia_devolucao').val(veiculo.distancia_devolucao)
+                    $('#localizacao').val(veiculo.localizacao)
+                    $('#motorista').prop('checked',veiculo.motorista)
+                    $('#gps').prop('checked',veiculo.gps)
+                    $('#musica').prop('checked',veiculo.musica)
+                    $('#bluetooth').prop('checked',veiculo.bluetooth)
+                    $('#ac').prop('checked',veiculo.ac)
+                    $('#coordenadas').val(veiculo.latitude+','+veiculo.longitude)
+                    $('#img').html(`${veiculo.imagem? `<img src="${veiculo.imagem}" alt="${veiculo.modelo}" id="imagem">`: ''} `)
+                    // Função para definir a opção selecionada
+                    var marca= document.getElementById('marca')
+                    selecionarOpcao(veiculo.marca, marca)
+                    var categoria= document.getElementById('categoria')
+                    selecionarOpcao(veiculo.categoria, categoria)
+                    var transmissao= document.getElementById('transmissao')
+                    selecionarOpcao(veiculo.transmissao, transmissao)
+                    var condicao= document.getElementById('condicao')
+                    selecionarOpcao(veiculo.condicao, condicao)
+                    var comb= document.getElementById('combustivel')
+                    selecionarOpcao(veiculo.combustivel, comb)
+                    maps(veiculo.latitude,veiculo.longitude, veiculo.imagem, veiculo.localizacao,map)
+                    $('#alerta-prof').removeClass('proccessing')
+                });
+            });
+            
+        })
+
+        $('.delete-veiculo').click(function (e) {
+            e.preventDefault()
+            var placa=$(this).data('placa')
+            $('#alerta-prof').addClass('proccessing')
+            fetch('/rentcar/veiculo/'+placa+'/remover')
+            .then(response => response.json())
+            .then(data => {
+                $('#alerta-prof').removeClass('proccessing')
+                $('#alerta-prof').addClass('message')
+                var message=$('#message').html(`<div class="text-smart">${data.message}</div>`)
+                setTimeout(function (params) {
+                    $('#alerta-prof').removeClass('message')
+                    actualizaLista()
+                },5000)
+            });
+            
+        })
+        
+        $('#cancelar-form').click(function (params) {
+            $('#veiculos').toggleClass('open')
+            $('.modificar-veiculo').toggleClass('open')
+        })
+
+    }
+
+    
+    function reset() {
+        $('#modelo').val('')
+        $('#ano').val('')
+        $('#preco').val('')
+        $('#numero_pessoas').val('')
+        $('#numero_portas').val('')
+        $('#placa').val('')
+        $('#distancia_entrega').val('')
+        $('#distancia_devolucao').val('')
+        $('#localizacao').val('')
+        $('#motorista').prop('checked',false)
+        $('#gps').prop('checked',false)
+        $('#musica').prop('checked',false)
+        $('#bluetooth').prop('checked',false)
+        $('#ac').prop('checked',false)
+        $('#coordenadas').val(false)
+    }
+    
+    
+    function maps(lat,lng, img, localizacao,map)
+    {
+
+        if (lat !=0 && lng!=0){
+            map.setView([lat,lng] ,13);
+            L.marker([lat,lng],{
+                icon: L.icon({
+                    iconUrl: img? img:$('#logotipo').val(),
+                    iconSize: [50, 50]
+                })
+            }).addTo(map)
+                .bindPopup(localizacao)
+                .openPopup();
+        }else{
+            
+            // Tenta obter a localização do usuário
+            map.locate({ setView: true, maxZoom: 55 });
+            // Event listener para quando a localização é encontrada
+            map.on('locationfound', function(e) {
+                // Centraliza o mapa na localização do usuário
+                map.setView(e.latlng, 14);
+                var img=$('#foto_user_perfil').val()? $('#foto_user_perfil').val(): $('#logotipo').val()
+
+                // Obtém a latitude e longitude do evento
+                var lat = e.latlng.lat.toFixed(6); // Arredonda para 6 casas decimais
+                var lng = e.latlng.lng.toFixed(6);
+                // Adiciona um marcador na localização do usuário
+                L.marker(e.latlng,{
+                    icon: L.icon({
+                        iconUrl: img,
+                        iconSize: [50, 50]
+                    })
+                }).addTo(map)
+                .bindPopup('Você está aqui!')
+                .openPopup();
+            });
+
+            // Event listener para quando a localização não é encontrada
+            map.on('locationerror', function(e) {
+                // Inicializa o mapa com uma localização padrão se a localização não for encontrada
+                map.setView([-25.9692, 32.5732], 13);
+            });
+
+        }
+        
+        // Inicializando o marcador
+        var startMarker, endMarker;
+
+        // Função para buscar sugestões de localização
+        function fetchSuggestions(query, callback) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&countrycode=MZ`)
+                .then(response => response.json())
+                .then(data => {
+                    callback(data);
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar sugestões:', error);
+                });
+        }
+
+        // Função para atualizar a lista de sugestões
+        function updateSuggestions(suggestions, containerId, markerType) {
+            var suggestionsContainer = document.getElementById(containerId);
+            suggestionsContainer.innerHTML = '';
+            if (suggestions.length > 0) {
+                suggestions.forEach(function(suggestion) {
+                    var div = document.createElement('div');
+                    div.className = 'autocomplete-suggestion';
+                    div.innerText = suggestion.display_name;
+                    div.addEventListener('click', function() {
+                        document.getElementById(markerType).value = suggestion.display_name;
+                        
+                        var latlng = [suggestion.lat, suggestion.lon];
+                        
+                        if (markerType === 'localizacao') {
+                            $('#coordenadas').val(suggestion.lat +',' +suggestion.lon)
+
+                            if (startMarker) {
+                                
+                                startMarker.setLatLng(latlng).bindPopup(suggestion.display_name).openPopup();
+                            } else {
+                                
+                                startMarker = L.marker(latlng).addTo(map).bindPopup(suggestion.display_name).openPopup();
+                            }
+                        }
+                        
+                        map.setView(latlng, 13);
+                        suggestionsContainer.innerHTML = '';
+                        
+                    });
+                    suggestionsContainer.appendChild(div);
+                });
+            } else {
+                var div = document.createElement('div');
+                div.className = 'autocomplete-suggestion d-none';
+                div.innerText = 'Nenhuma sugestão encontrada';
+                suggestionsContainer.appendChild(div);
+            }
+        }
+
+        // Manipuladores de eventos de input para buscar sugestões
+        document.getElementById('localizacao').addEventListener('input', function() {
+            var query = this.value;
+            if (query.length > 2) {
+                fetchSuggestions(query, function(suggestions) {
+                    updateSuggestions(suggestions, 'startSuggestions', 'localizacao');
+                });
+            } else {
+                document.getElementById('startSuggestions').innerHTML = '';
+            }
+        });
+
+        // Adiciona o tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }).addTo(map);
+
+    }
+
+</script>
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+{% if user.proprietario.foto_perfil %}
+<input type="hidden" id="foto_user_perfil" value="{{user.proprietario.foto_perfil.url}}">
+{% endif %}
+<input type="hidden" id="logotipo" value="{{config.logotipo.url}}">
+
+
+<div class="veiculos open" id="veiculos">
+    <div class="filtro">
+        <div class="filtro-search flex-grow-1">
+            <div class="input-group smart-input-group">
+                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-search text-smart"></i></span>
+                <input type="search" role="search" class="form-control smart-form-control"  id="q" name="q" placeholder="pesquisar..">
+            </div>
+        </div>
+        <div class="filtro-search">
+            <button class="dropdown btn btn-secondar shadow-none border-0 p-0">
+                <div data-bs-toggle="dropdown" data-bs-target="#sort" class="dropdown-toggle"><i class="fa fa-filter"></i></div>
+                <div id="sort" class="dropdown-menu">
+                    <div data-sort="modelo" class="sort dropdown-item">Modelo</div>
+                    <div data-sort="preco" class="sort dropdown-item">Preco</div>
+                    <div data-sort="placa" class="sort dropdown-item">Placa</div>
+                    <div data-sort="marca" class="sort dropdown-item">Marca</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="tipo_filtro">
+            <div class="filtros-item flex-grow- badge bg-success"></div>
+            <a href="" class="text-danger limpar-filtros"><i class="fa fa-trash-can"></i> Limpar filtros</a>
+        </div>
+    
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center py-2 px-3 bg-light my-3">
+        <h4>Meus Veículos</h4>
+        <a id="novo-rentcar" href="{% url 'rentcar-novo' %}"><i class="fa fa-plus"></i> Novo</a>
+    </div>
+
+    <div class="veiculos-items" id="veiculos-items">
+        <div class="list w-100 h-100"></div>
+    </div>
+</div>
+
+<div class="modificar-veiculo ope">
+    <div class="modificar-veiculo-mapa" id="map"></div>
+
+    <div class="modificar-veiculo-form">
+        <div class="position-relative h-100 w-100">
+            <div class="header">
+                <h3>Actualizar</h3>
+                <div id="img" class="img"></div>
+            </div>
+
+            <form action="{% url 'rentcar-novo' %}" method="post" id="form-veiculo" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modificar-veiculo-form-item">
+                    <div>
+                        <div class="mb-2">
+                            <label for="modelo" class="form-label m-0">Modelo <span class="text-danger">*</span></label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-car-on"></i></span>
+                                <input type="text" class="form-control smart-form-control " required id="modelo" name="modelo" placeholder="Modelo">
+                            </div>
+                        </div>
+    
+                        <div class="mb-2">
+                            <label for="placa" class="form-label m-0">Placa <span class="text-danger">*</span></label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-drivers-license"></i></span>
+                                <input type="text" class="form-control smart-form-control " required id="placa" name="placa" placeholder="Placa">
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="mb-2 col-12">
+                                <label for="marca" class="form-label m-0">Marca <span class="text-danger">*</span></label>
+                                <select id="marca" name="marca" class="form-select text-smart shadow-none" required>
+                                    
+                                    <option value="">Selecione a marca</option>
+                                    {% for marca in marca %}
+                                        <option value="{{marca.pk}}">{{ marca }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                    
+                            <div class="mb-2 col-12">
+                                <label for="categoria" class="form-label m-0">Categoria <span class="text-danger">*</span></label>
+                                <select id="categoria" name="categoria" class="form-select text-smart shadow-none" required>
+                                    <option value="">Selecione a categoria</option>
+                                    {% for categoria in categoria %}
+                                        <option value="{{categoria.pk}}">{{ categoria}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="mb-2 col-6">
+                                <label for="ano" class="form-label m-0">Ano <span class="text-danger">*</span></label>
+                                <div class="input-group smart-input-group">
+                                    <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-calendar-xmark"></i></span>
+                                    <input type="number" class="form-control smart-form-control " required id="ano" name="ano" placeholder="Ano">
+                                </div>
+                            </div>
+        
+                            <div class="mb-2 col-6">
+                                <label for="preco" class="form-label m-0">Preço <span class="text-danger">*</span></label>
+                                <div class="input-group smart-input-group">
+                                    <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-money-bill-wave"></i></span>
+                                    <input type="number" class="form-control smart-form-control " required id="preco" name="preco" placeholder="Preço">
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="mb-2 col-6">
+                                <label for="numero_portas" class="form-label m-0">Número de Portas <span class="text-danger">*</span></label>
+                                <div class="input-group smart-input-group">
+                                    <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-door-open"></i></span>
+                                    <input type="number" class="form-control smart-form-control " min="0" id="numero_portas" name="numero_portas" placeholder="Número de portas">
+                                </div>
+                            </div>
+        
+                            <div class="mb-2 col-6">
+                                <label for="numero_pessoas" class="form-label m-0">Capacidade <span class="text-danger">*</span></label>
+                                <div class="input-group smart-input-group">
+                                    <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-users"></i></span>
+                                    <input type="number" class="form-control smart-form-control" required id="numero_pessoas" name="numero_pessoas" placeholder="Número de passageiros">
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="row">
+                            <div class="mb-2 col-6">
+                                <label for="condicao" class="form-label m-0">Condição <span class="text-danger">*</span></label>
+                                <select id="condicao" name="condicao" class="form-select text-smart shadow-none" required>
+                                    <option value="">Selecione a condição</option>
+                                    <option value="km">Kilômetro</option>
+                                    <option value="Hora">Hora</option>
+                                    <option value="Dia">Dia</option>
+                                    <option value="Semana">Semana</option>
+                                    <option value="Mensal">Mês</option>
+                                    <option value="Anual">Anual</option>
+                                </select>
+                            </div>
+    
+                            <div class="mb-2 col-6">
+                                <label for="transmissao" class="form-label m-0">Transmissão <span class="text-danger">*</span></label>
+                                <select id="transmissao" name="transmissao" class="form-select text-smart shadow-none" required>
+                                    <option value="">Selecione a transmissão</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Automático">Automático</option>
+                                </select>
+                            </div>
+                        </div>
+    
+                        <div class="mb-2">
+                            <label for="combustivel" class="form-label m-0">Combustível <span class="text-danger">*</span></label>
+                            <select id="combustivel" name="combustivel" class="form-select text-smart shadow-none" required>
+                                <option value="">Selecione a combustivel</option>
+                                <option value="Gasolina">Gasolina</option>
+                                <option value="Diesel">Diesel</option>
+                                <option value="Eletrico">Elétrico</option>
+                                <!-- Adicione outras opções conforme necessário -->
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="localizacao" class="form-label m-0">Localização <span class="text-danger">*</span></label>
+                            <input type="hidden" name="coordenadas" id="coordenadas">
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+                                <input type="text" class="form-control smart-form-control " required id="localizacao" name="localizacao" placeholder="Localização">
+                            </div>
+                            <div id="startSuggestions" class="autocomplete-suggestions me-3 shadow-lg"></div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="distancia_entrega" class="form-label m-0">Distância de Entrega (Km)</label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+                                <input type="text" id="distancia_entrega" name="distancia_entrega" placeholder="Em que distância em *Km* aceita entregas?" 
+                                class="form-control smart-form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label for="distancia_devolucao" class="form-label m-0">Distância de Devolução (Km)</label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+                                <input type="text" id="distancia_devolucao" name="distancia_devolucao" 
+                                placeholder="Em que distância em *Km* aceita devolução?" class="form-control smart-form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <span  class="form-label m-0">Actualizar Imagem</span>
+                            <div class="input-group smart-input-group">
+                                <label for="imagem" class="input-group-text smart-input-group-text"><i class="fa-solid fa-camera-alt text-smart me-2"></i></label>
+                                <input type="file" accept="image/*" class="form-control smart-form-control"  id="imagem" name="imagem">
+                            </div>
+                        </div>
+
+    
+                        <h5 class="mb-2">Serviços Extras</h5>
+                        <div class="row">
+                            <div class="mb-2 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" id="motorista" name="com_motorista" class="form-check-input">
+                                    <label for="com_motorista" class="form-check-label">Motorista</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" id="ac" name="ac" class="form-check-input">
+                                    <label for="ac" class="form-check-label">Ar Condicionado</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" id="gps" name="gps" class="form-check-input">
+                                    <label for="gps" class="form-check-label">GPS</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" id="musica" name="musica" class="form-check-input">
+                                    <label for="musica" class="form-check-label">Música</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-2 col-6">
+                                <div class="form-check">
+                                    <input type="checkbox" id="bluetooth" name="bluetooth" class="form-check-input">
+                                    <label for="bluetooth" class="form-check-label">Bluetooth</label>
+                                </div>
+                            </div>
+
+
+                        </div>
+    
+                    </div>
+    
+                    <div class="d-flex justify-content-between gap-2">
+                        <button type="button" id="cancelar-form" class="btn w-100">Cancelar</button>
+                        <button type="submit" class="btn bg-smart w-100">Salvar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        
+    </div>
+</div>
+
+<div class="alerta-prof" id="alerta-prof">
+    <div class="alerta-profiss-content">
+        <div class="alerta-profiss-proccessing" id="proccessing">
+            <div class="spinner-border text-smart"></div>
+        </div>
+        <div class="alerta-profiss-message" id="message">
+            <div class="text-danger" id="erro">Erro</div>
+            <div class="text-smart" id="success">Success</div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

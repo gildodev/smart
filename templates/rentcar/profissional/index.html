@@ -1,0 +1,146 @@
+{% extends "rentcar/layout/base_layout_profiss.html" %}
+{% load static %}
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{config}} - Seja Bem-vindo!
+{% endblock title %}
+
+<!-- Css extra -->
+{% block cssExtra %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+<!-- Turf.js for distance calculations -->
+<script src="https://unpkg.com/@turf/turf"></script>
+
+<script src="{% static 'js/rentcar/profiss.js'%}"></script>
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+{% if user.proprietario.foto_perfil %}
+<input type="hidden" id="foto_user_perfil" value="{{user.proprietario.foto_perfil.url}}">
+{% endif %}
+<input type="hidden" id="logotipo" value="{{config.logotipo.url}}">
+<div id="map"></div>
+
+<div class="rentcar-profissicional ">
+    
+    <div class="rentcar-profiss mt-2 d-none">
+        <div class="profiss-content">
+            <div class="profiss-card">
+                <div class="profiss-card-header">
+                    <h6>{{total_bk_completo}}</h6>
+                </div>
+                <div class="profiss-card-body">
+                    <small>Completos</small>
+                </div>
+            </div>
+            <div class="profiss-card">
+                <div class="profiss-card-header">
+                    <h6>{{total_bk_andamento}}</h6>
+                </div>
+                <div class="profiss-card-body">
+                    <small>Andamento</small>
+                </div>
+            </div>
+    
+            <div class="profiss-card">
+                <div class="profiss-card-header">
+                    <h6>{{total_pd_cancelado}}</h6>
+                </div>
+                <div class="profiss-card-body">
+                    <small>Cancelados</small>
+                </div>
+            </div>
+    
+            <div class="profiss-card">
+                <div class="profiss-card-header">
+                    <h6>{{total_pd_pendente}}</h6>
+                </div>
+                <div class="profiss-card-body">
+                    <small>Pendentes</small>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="rentcar-profiss mt-">
+        <div class="profiss-content">
+            <a href="{% url 'rentcar-list' %}">
+                <i class="fa fa-car"></i>
+                <span>Veículo</span>
+            </a>
+
+            <a href="">
+                <i class="fa fa-user-alt-slash"></i>
+                <span>Motorista</span>
+            </a>
+            
+    
+            <a href="">
+                <i class="fa fa-calendar"></i>
+                <span>Reserva</span>
+
+                <div class="pendente"></div>
+            </a>
+    
+            
+            
+        </div>
+    </div>
+</div>
+
+<div class="rentcar-profiss-reserva" id="rentcar-profiss-reserva">
+    <div class="reserva-pendente" id="reserva-pendente"></div>
+</div>
+
+<div class="rentcar-profiss-cancelar" id="rentcar-profiss-cancelar">
+    <h3 class="text-danger">Motivos de Cancelamento</h3>
+    <div class="cancelar-form d-flex flex-column gap-2">
+        <div class="form-check-inline d-none">
+            <input type="radio" value="Reserva em conflito com outro compromisso" class="form-check-input bg-smart shadow-none" name="razao" id="cancelar1">
+            <label for="cancelar1" class="form-check-label text-smart-90">Reserva em Conflito com Outro Compromisso</label>
+        </div>
+        <div class="form-check-inline">
+            <input type="radio" value="Problemas com o Veículo" class="form-check-input bg-smart shadow-none" name="razao" id="cancelar2">
+            <label for="cancelar2" class="form-check-label text-smart-90">Problemas com o Veículo</label>
+        </div>
+        <div class="form-check-inline">
+            <input type="radio" value="Alteração nas Condições de Disponibilidade" class="form-check-input bg-smart shadow-none" name="razao" id="cancelar3">
+            <label for="cancelar3" class="form-check-label text-smart-90">Alteração nas Condições de Disponibilidade</label>
+        </div>
+        <div class="form-check-inline">
+            <input type="radio" value="Cancelamento por Motivos Pessoais" class="form-check-input bg-smart shadow-none" name="razao" id="cancelar4">
+            <label for="cancelar4" class="form-check-label text-smart-90">Cancelamento por Motivos Pessoais</label>
+        </div>
+        <div class="form-check-inline">
+            <input type="radio" value="Problemas de Pagamento" class="form-check-input bg-smart shadow-none" name="razao" id="cancelar5">
+            <label for="cancelar5" class="form-check-label text-smart-90">Problemas de Pagamento</label>
+        </div>
+        <div class="form-check-inline" id="cancelar6">
+            <input type="radio" class="form-check-input bg-smart shadow-none">
+            <label for="cancelar6" class="form-check-label text-smart-90">Outros Motivos</label>
+        </div>
+    </div>
+
+    <div>
+        <button id="cancela" type="button" class="btn cancela_confirmacao">Cancelar</button>
+        <button id="cancelar" type="button" class="btn bg-smart">Continuar</button>
+    </div>
+
+</div>
+
+<div class="rentcar-reserva-aceite" id="rentcar-reserva-confirm"></div>
+{% endblock content %}
