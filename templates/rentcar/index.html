@@ -1,0 +1,252 @@
+{% extends "rentcar/layout/base_layout.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{user.get_full_name}} - Bem-vindo!
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.2/css/dataTables.bootstrap5.css">
+  <style>
+    .list-item{
+        cursor: pointer;
+        background: rgb(226, 233, 226);
+        color: white;
+        position: relative;
+    }
+  </style>
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.1.2/js/dataTables.bootstrap5.js"></script>
+    <script>
+        $('#veiculos').DataTable();
+    </script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>
+    
+    <script>
+        const script = document.getElementById('search-js');
+        // wait for the Mapbox Search JS script to load before using it
+        script.onload = function () {
+            // instantiate a <mapbox-address-autofill> element using the MapboxAddressAutofill class
+            const autofillElement = new mapboxsearch.MapboxAddressAutofill()
+      
+            autofillElement.accessToken = 'pk.eyJ1IjoiYXBpbWFwczg1MDMiLCJhIjoiY2x5ZmpxbTJrMDA4cTJycjJncjg0ZXh4eSJ9.ZRPdmTAW918x9T_pwr8oVA'
+      
+            // set the <mapbox-address-autofill> element's options
+            autofillElement.options = {
+                country: 'mzs',
+                minLength: 2,
+                types:'places'
+            }
+      
+            if (mapboxsearch && mapboxsearch.MapboxAddressAutofill) {
+                const the_input = document.getElementById('localizacao');
+                const the_form = the_input.parentElement
+    
+                // append the <input> to <mapbox-address-autofill>
+                autofillElement.appendChild(the_input);
+                // append <mapbox-address-autofill> to the <form>
+                the_form.appendChild(autofillElement);
+            } else {
+                alert('Mapbox Address Autofill não carregado.');
+            }
+            
+        };
+        
+    </script>
+
+{% endblock jsExtra %}
+{% comment %} content {% endcomment %}
+{% block content %}
+
+<div class="container py-2 ">
+    
+    <div class="row">
+        <div class="col-md-8 mb-2">
+            <div class="row">
+
+   
+
+                <!-- Veiculo -->
+                <div class="col-12 mb-2">
+                    <div class="card">
+                        <div class="card-header text-bg-success rounded-0 py-2">
+                            <h1 class="card-title h3 text-light">Veículos</h1>
+                        </div>
+        
+                        <div class="card-body py-2 ">
+                            <div class="list-items">
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                    <a href="{% url 'rentcar-list' %}" class="link-info">Veículos</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="{% url 'rentcar-list' %}" class="text-body"><i class="fa fa-plus text-success"></i> Novo</a>
+                                        <a href="{% url 'rentcar-novo' %}" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                    <a href="{% url 'rentcar-galeria' %}" class="link-info">Galeria</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="{% url 'rentcar-galeria-nova' %}" class="text-body"><i class="fa fa-plus text-success"></i> Nova</a>
+                                        <a href="{% url 'rentcar-galeria' %}" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                    <a href="{% url 'rentcar-normas' %}" class="link-info">Normas</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="{% url 'rentcar-normas' %}" class="text-body"><i class="fa fa-plus text-success"></i> Novo</a>
+                                        <a href="{% url 'rentcar-normas' %}" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motorista -->
+                <div class="col-12 mb-2">
+                    <div class="card">
+                        <div class="card-header text-bg-warning rounded-0 py-2">
+                            <h1 class="card-title h3 text-light">Motoristas</h1>
+                        </div>
+        
+                        <div class="card-body py-2 ">
+                            <div class="list-items">
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                    <a href="{% url 'rentcar-motorista'  %}" class="link-info">Motoristas</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="{% url 'rentcar-motorista-novo'  %}" class="text-body"><i class="fa fa-plus text-success"></i> Novo</a>
+                                        <a href="{% url 'rentcar-motorista'  %}" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+                                <div class="d-flex justify-content-between mb-2 d-none border-bottom pb-2">
+                                    <a href="" class="link-info">Viagens</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="" class="text-body"><i class="fa fa-plus text-success"></i> Nova</a>
+                                        <a href="" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Serviços -->
+                <div class="col-12 mb-2">
+                    <div class="card">
+                        <div class="card-header text-bg-dark rounded-0 py-2 d-flex justify-content-between align-items-center">
+                            <h1 class="card-title h3 text-light">Serviços</h1>
+                        </div>
+        
+                        <div class="card-body py-2 ">
+                            <div class="list-items">
+                                <div class="d-flex justify-content-between mb-2 border-bottom pb-2">
+                                    <a href="{% url 'rentcar-pedidos'  %}" class="link-info">Pedidos</a>
+                                    <div class="gap-2 d-flex">
+                                        <a href="" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+        
+                                <div class="d-flex justify-content-between mb-2 border-bottom d-none pb-2">
+                                    <a href="" class="link-info">Reservas</a>
+                                    
+                                    <div class="gap-2 d-flex">
+                                        <a href="" class="text-body"><i class="fa fa-plus text-success"></i> Nova</a>
+                                        <a href="" class="text-body-emphasis"><i class="fa fa-edit text-warning"></i> Editar</a>
+                                    </div>
+                                </div>
+
+        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <div class="row mb-2">
+                <div class="col-md-12 mb-2">
+                    <div class="card rounded shadow-lg">
+                        <div class="card-header d-flex justify-content-center py-2 border-0">
+                            
+                            {% if user.proprietario.foto_perfil %}
+                                <img src="{{user.proprietario.foto_perfil.url}}" alt="ddydyd" class="avatar avatar-xs rounded-circle">
+                            {% else %}
+                                <span class="fa fa-user-circle fa-3x"></span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body text-center py-2">
+                            <h5>{{user.get_full_name}}</h5>
+                            <div><small class="text-dark">{{user.email}}</small></div> 
+                            <div><small class="text-dark">{{user.proprietario.telefone}}</small></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-2">
+                    <div class="bg-white shadow-lg rounded-5 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6>Total Veículos</h6>
+                            <small class="h5 fw-bold">{{user.proprietario_veiculo.count}}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-12 mb-2">
+                    <div class="bg-white shadow-lg rounded-5 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6>Total de Motoristas</h6>
+                            <small class="h5 fw-bold">{{user.motorista.count}}</small>
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="col-md-12 mb-2">
+                    <div class="bg-white shadow-lg rounded-5 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6>Total Pedidos</h6>
+                            <small class="h5 fw-bold">{{user.pedido_dono.count}}</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-2 d-none">
+                    <div class="bg-white shadow-lg rounded-5 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6>Total de Reservas</h6>
+                            <small class="h5 fw-bold">122787</small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+
+{% endblock content %}

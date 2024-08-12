@@ -1,0 +1,181 @@
+{% extends "rentcar/layout/base_layout_cliente.html" %}
+{% load static %}
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{config}} - Seja Bem-vindo!
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Turf.js for distance calculations -->
+    <script src="https://unpkg.com/@turf/turf"></script>
+    
+
+    <script src="{% static 'js/rentcar/maps.js'%}"></script>
+
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+
+{% if user.cliente.foto_perfil %}
+<input type="hidden" id="foto_user_perfil" value="{{user.cliente.foto_perfil.url}}">
+{% endif %}
+<input type="hidden" id="logotipo" value="{{config.logotipo.url}}">
+
+<!-- Pesquisa -->
+<div class="smart-location ">
+    <div class="container-fluid py-2">
+        <div class="smart-location-form">
+            <form id="request" action="{% url 'rentcar-request' %}" method="post" class="pb-4">
+                {% csrf_token %}
+                <div class="shadow-md rounded-2 pt-1">
+                    <h3>Procure veículos</h3>
+                    <div class="position-relative mb-3">
+                        <div class="input-group smart-input-group">
+                            <input type="hidden" name="coordenadas_entregas" id="coordenadas_entregas">
+                            <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-crosshairs text-smart"></i></span>
+                            <input type="text" class="form-control smart-form-control " required name="local-entrega" id="receber" placeholder="Onde quer receber o veiculo?">
+                        </div>
+                        <div id="startSuggestions" class="autocomplete-suggestions me-3"></div>
+                    </div>
+    
+                    <div class="position-relative">
+                        <div class="input-group smart-input-group">
+                            <input type="hidden" name="coordenadas_devolucao" id="coordenadas_devolucao">
+                            <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-crosshairs text-danger"></i></span>
+                            <input type="text" class="form-control smart-form-control " required id="devolucao" name="local-devolucao" placeholder="Onde vai deixar o veiculo?">
+                        </div>
+                        <div id="endSuggestions" class="autocomplete-suggestions me-3"></div>
+                    </div>
+                </div>
+
+                <div class="filtros shadow p-2 my-2 rounded-2">
+                    <div class="mb-2">
+                        <div class="text-smart-90 h6 mb-2"> <label>Tipo de Veículo</label></div>
+                        <div class="lista-items">
+                            <div class="lista-item categorias">
+                                {% for categoria in categorias %}
+                                <input type="radio" name="categoria" id="categoria{{forloop.counter}}" class="d-none" value="{{categoria.pk}}">
+                                <label for="categoria{{forloop.counter}}" class="lista-item-label p-1">
+                                    <img src="{{categoria.imagem_categoria.url}}" alt="{{categoria}}" class="rounded-2">
+                                    <div class="lista-item-titulo">{{categoria}}</div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="mb-2">
+                            <div class="text-smart-90 h6 mb-2">
+                                <label>Combustível</label>
+                            </div>
+                            <div class="lista-items ">
+                                <div class="lista-item cursor-pointer combustiveis">
+                                    <!-- Tipo de combustível: Gasolina -->
+                                    <input type="radio" name="combustivel" id="combustivel1" class="d-none" value="gasolina">
+                                    <label for="combustivel1" class="lista-item-label gap-2 p-1">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <div class="lista-item-titulo text-capitalize">Gasolina</div>
+                                    </label>
+                                </div>
+
+                                <div class="lista-item cursor-pointer combustiveis">
+                                    <!-- Tipo de combustível: Diesel -->
+                                    <input type="radio" name="combustivel" id="combustivel2" class="d-none" value="diesel">
+                                    <label for="combustivel2" class="lista-item-label gap-2 p-1">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <div class="lista-item-titulo text-capitalize">Diesel</div>
+                                    </label>
+                                </div>
+                                <div class="lista-item cursor-pointer combustiveis">
+                                    <!-- Tipo de combustível: Etanol -->
+                                    <input type="radio" name="combustivel" id="combustivel3" class="d-none" value="etanol">
+                                    <label for="combustivel3" class="lista-item-label gap-2 p-1">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <div class="lista-item-titulo text-capitalize">Etanol</div>
+                                    </label>
+                                </div>
+                                <div class="lista-item cursor-pointer combustiveis">
+                                    <!-- Tipo de combustível: GNV -->
+                                    <input type="radio" name="combustivel" id="combustivel4" class="d-none" value="gnv">
+                                    <label for="combustivel4" class="lista-item-label gap-2 p-1">
+                                        <i class="fa fa-gas-pump"></i>
+                                        <div class="lista-item-titulo text-capitalize">GNV</div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <div class="text-smart-90 h6 mb-2"> <label>Com motorista?</label></div>
+                        <div class="lista-items">
+                            <div class="lista-item motoristas">
+                                <input type="radio" name="motorista" id="motorista-sim" class="d-none" value="True">                                <label for="combustivel{{forloop.counter}}" class="lista-item-label gap-2 p-1">
+                                <label for="motorista-sim" class="d-flex align-items-center">
+                                    <i class="fa fa-car-on"></i>
+                                    <div class="lista-item-titulo">Sim</div>
+                                </label>
+                            </div>
+
+                            <div class="lista-item motoristas">
+                                <input type="radio" name="motorista" id="motorista-nao" class="d-none" value="False">                                <label for="combustivel{{forloop.counter}}" class="lista-item-label gap-2 p-1">
+                                <label for="motorista-nao" class="d-flex align-items-center">  
+                                    <i class="fa fa-car-burst"></i>
+                                    <div class="lista-item-titulo">Não</div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2 ">
+                        <div class="form-switch mb-2">
+                            <input type="checkbox" name="aplicar"  id="aplicar" class="form-check-input bg-smart border-0 shadow-none">
+                            <label for="aplicar" class="form-check-label text-smart-90">Aplicar filtros.</label>
+                        </div>
+                        <span id="resetar" class="text-danger p-1 small cursor-pointer mb-2"><i class="fa fa-close"></i> Resetar filtros</span>
+                    </div>
+                </div>
+                
+                <div class="smart-btn">
+                    <button class="btn p-2 w-100 bg-smart" type="submit">Procurar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- fim -->
+
+<!--Maps Start-->
+<div id="map"></div>
+<!--Maps End-->
+
+<!-- Liste de veiculos -->
+<div class="smart-request-rentcar closed">
+    <div class="smart-request-content">
+        <div class="smart-request-header">
+            <div id="back-location" class="cursor-pointer"><i class="fa fa-circle-chevron-left"></i></div>
+            <div class="text-smart h4">Bookings</div>
+        </div>
+        <div class="smart-request-item mt-2"></div>
+    </div>
+</div>
+{% endblock content %}
