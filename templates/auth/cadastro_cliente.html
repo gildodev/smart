@@ -1,0 +1,82 @@
+{% extends "layout/base_auth.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+Cadastro do Cliente
+{% endblock title %}
+
+<!-- Css extra -->
+{% block cssExtra %}
+
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+
+<div class="container">
+    <div class="content position-relative">
+        <div class="d-block mb-2 text-center mt-3">
+            <h3>Criar uma conta</h3>
+            <!-- Exibir mensagens de feedback -->
+            <div class="alerta w-100 text-danger  text-start p-2"></div>
+        </div>
+
+        <div class="smart-form">
+            <form action="{% url 'smart-cadastro-proc-servicos-api' %}" id="cadastro-form" method="post">
+                {% csrf_token %}
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-user text-smart"></i></span>
+                    <input type="text" class="form-control smart-form-control " required name="nome" placeholder="Nome">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-user text-smart"></i></span>
+                    <input type="text" class="form-control smart-form-control " required name="sobrenome" placeholder="Sobrenome">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-phone text-smart"></i></span>
+                    <input type="number" minlength="9" maxlength="9" class="form-control smart-form-control " required name="telefone" placeholder="Telefone">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-envelope text-smart"></i></span>
+                    <input type="email" class="form-control smart-form-control " required name="email" placeholder="Email">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-user text-smart"></i></span>
+                    <input type="text" class="form-control smart-form-control " required name="username" placeholder="Username">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-key text-smart"></i></span>
+                    <input type="password" minlength="8" class="form-control pass-input smart-form-control" id="password" required name="password" placeholder="Password">
+                    <span class="input-group-text smart-input-group-text"><span class="fas fa-eye-slash toggle-password"></span></span>
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-key text-smart"></i></span>
+                    <input type="password" class="form-control pass-input smart-form-control" required id="confirmpassowrd" placeholder="Confirmar Password">
+                    <span class="input-group-text smart-input-group-text"><span class="fas fa-eye-slash toggle-password"></span></span>
+                </div>
+                <div class="alerta-password w-100 text-danger text-start mt-2 p-2"></div>
+    
+                
+                <button type="submit" class="btn btn-smart">Criar a conta</button>
+
+                <div class="proccessing-smart"><span class="spinner-border"></span></div>
+
+                <div class="text-center dont-have">Se já tens uma conta, <a href="{% url 'smart-login' %}">inicie sessão.</a></div>
+            </form>
+        </div>
+
+        <a href="{% url 'smart-cadastro' %}" class="position-absolute top-0 start-0 p-3"><i class="fa fa-arrow-circle-left"></i> Voltar</a>
+    </div>
+</div>
+    
+{% endblock content %}

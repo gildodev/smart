@@ -1,0 +1,70 @@
+{% extends "layout/base_auth.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+Seja bem-vindo ao {{config}} 
+{% endblock title %}
+
+<!-- Css extra -->
+{% block cssExtra %}
+
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        <div class="d-block mb-2 text-center">
+            <h3>O que procuras?</h3>
+        </div>
+
+        <div class="smart-cadastro-services">
+            <div class="smart-cadastro-service">
+                <div class="smart-cadastro-service-header">
+                    <h5><a href="{% url 'smart-cadastro-proc-servicos' %}">Procuro serviços</a></h5>
+                    <div class="smart-cadastro-service-action">
+                        <span class="fa fa-angle-down"></span>
+                    </div>
+                </div>
+
+                <div class="smart-cadastro-service-item">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
+                        Fugiat amet sapiente nulla architecto corporis provident sequi quibusdam totam, 
+                        sit facere expedita, minus cumque. 
+                        Animi veritatis fugit, voluptate molestias id totam!
+                    </p>
+                </div>
+            </div>
+
+            <div class="smart-cadastro-service">
+                <div class="smart-cadastro-service-header">
+                <h5><a href="{% url 'smart-cadastro-prest-servicos' %}">Prestaçao de serviços</a></h5>
+                    <div class="smart-cadastro-service-action">
+                        <span class="fa fa-angle-down"></span>
+                    </div>
+                </div>
+
+                <div class="smart-cadastro-service-item">
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
+                        Fugiat amet sapiente nulla architecto corporis provident sequi quibusdam totam, 
+                        sit facere expedita, minus cumque. 
+                        Animi veritatis fugit, voluptate molestias id totam!
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="text-center dont-have">Se já tens uma conta, <a href="{% url 'smart-login' %}">inicie sessão.</a></div>
+
+    </div>
+</div>
+    
+{% endblock content %}

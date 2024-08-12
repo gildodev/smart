@@ -1,0 +1,57 @@
+{% extends "layout/base_auth.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+Login {% for message in messages %} -{{message}}{% endfor %}
+{% endblock title %}
+
+<!-- Css extra -->
+{% block cssExtra %}
+
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+
+<div class="container">
+    <div class="content">
+        <div class="d-block mb-2 text-center">
+            <h3>Iniciar sessão</h3>
+            <!-- Exibir mensagens de feedback -->
+            <div class="alerta w-100 text-danger p-2"></div>
+        </div>
+
+        <div class="smart-form">
+            <form action="{% url 'smart-login-api' %}" id="login-form" method="post">
+                {% csrf_token %}
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-user text-smart"></i></span>
+                    <input type="text" class="form-control smart-form-control " required name="username" placeholder="Username">
+                </div>
+
+                <div class="input-group smart-input-group">
+                    <span class="input-group-text smart-input-group-text"><i class="fa fa-key text-smart"></i></span>
+                    <input type="password" class="form-control pass-input smart-form-control" required name="password" placeholder="Password">
+                    <span class="input-group-text smart-input-group-text"><span class="fas fa-eye-slash toggle-password"></span></span>
+                    
+                </div>
+    
+                <div class="input-block mb-2">
+                    <a class="forgot-link" href="">Esqueceu tua password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-smart">Login</button>
+
+                <div class="proccessing-smart"><span class="spinner-border"></span></div>
+
+                <div class="text-center dont-have">Ainda não tens uma conta? <a href="{% url 'smart-cadastro' %}">Cadastre-se</a></div>
+            </form>
+        </div>
+    </div>
+</div>
+    
+{% endblock content %}
