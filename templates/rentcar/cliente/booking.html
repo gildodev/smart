@@ -1,0 +1,269 @@
+{% extends "rentcar/layout/base_layout.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+Meus Bookings - Minha Conta
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+    
+
+{% endblock jsExtra %}
+{% comment %} content {% endcomment %}
+{% block content %}
+<div class="breadcrumb-bar">
+    <div class="container">
+        <div class="row align-items-center text-center">
+            <div class="col-md-12 col-12">
+                <h2 class="breadcrumb-title">Meus Bookings</h2>
+                <nav aria-label="breadcrumb" class="page-breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'rentcar-home'  %}">Página Inicial</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'rentcar-dashboard'  %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Meus Bookings</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-2">
+    <div class="row">
+        <div class="col-lg-12 d-flex">
+            <div class="card book-card flex-fill mb-0">
+                <div class="card-header">
+                    <h4>Todos Bookings<span>{{user.pedido_cliente.count}}</span></h4>
+                    <!-- Exibir mensagens de feedback -->
+                    {% if messages %}
+                        <div class="alert-container my-2">
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}warning{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive dashboard-table">
+                        <table class="table datatable">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Booking</th>
+                                    <th>Carro</th>
+                                    <th>Condição</th>
+                                    <th>Local de Entrega</th>
+                                    <th>Local de devolução</th>
+                                    <th>Duração</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% if user.pedido_cliente.all %}
+                                  {% for booking in user.pedido_cliente.all %}
+                                    <tr>
+                                        <td><a href="#" data-bs-toggle="modal" data-bs-target="#booking{{booking.pk}}">#{{booking.pk}}</a></td>
+                                        <td>
+                                            <div class="table-avatar">
+                                                <a class="avatar avatar-lg flex-shrink-0">
+                                                    <img class="avatar-img" src="{{booking.veiculo.imagem_veiculo.url}}" alt="Booking">
+                                                </a>
+                                                <div class="table-head-name flex-grow-1">
+                                                    <a> {{booking.veiculo.marca}} {{booking.veiculo}}</a>
+                                                    <p>
+                                                        {% if booking.veiculo.com_motorista %}
+                                                          Com Motorista
+                                                        {% else %} 
+                                                            Sem Motorista
+                                                        {% endif %}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><p class="small"> <strong>{{booking.veiculo.preco}}</strong>/{{booking.veiculo.condicao_aplicada}}</p></td>
+                                        <td>
+                                            <p>{{booking.local_entrega}} <span class="d-block">{{booking.data_entrega}} {{booking.hora_entrega}}</span></p>
+                                        </td>
+
+                                        <td>
+                                            <p>{{booking.local_devolucao}} <span class="d-block">{{booking.data_devolucao}} {{booking.hora_devoluca}}</span></p>
+                                        </td>
+
+                                        <td>
+                                            <p>{{booking.duracao}}</p>
+                                        </td>
+    
+                                        <td>
+                                            
+                                            <span class="badge  
+                                            {% if booking.status == 'Pendente' %}
+                                                badge-light-secondary
+                                            {% elif booking.status == 'Cancelado' %}
+                                                badge-light-danger
+                                            {% elif booking.status == 'Reprovado' %}
+                                                badge-light-danger
+                                            {% elif booking.status == 'Aprovado' %}
+                                                badge-light-success
+                                            {% else %}
+                                                badge-light-secondary
+                                            {% endif %}
+                                            ">{{booking.status}}</span>
+                                        </td>
+                                    
+                                    </tr>
+                                  {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="12" class="text-danger"> Ainda não fez nenhum booking.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.pedido_cliente.all %}
+    {% for booking in user.pedido_cliente.all %}
+    <div class="modal new-modal multi-step fade" id="booking{{booking.pk}}" data-keyboard="false" data-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close-btn" data-bs-dismiss="modal"><span>×</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="booking-header">
+                        <div class="booking-img-wrap">
+                            <div class="book-img">
+                                <img src="{{booking.veiculo.imagem_veiculo.url}}" alt="{{booking.veiculo}}">
+                            </div>
+                            <div class="book-info">
+                                <h6>{{booking.veiculo}}</h6>
+                                <p><i class="feather-map-pin"></i> Localizacao : {{booking.veiculo.localizacao}}</p>
+                            </div>
+
+                        </div>
+
+                        <div class="book-amount">
+                            <p>Condição</p>
+                            <h6>{{booking.veiculo.preco}}/<small class="text-dark">{{booking.veiculo.condicao_aplicada}}</small></h6>
+                        </div>
+                    </div>
+
+                    <div class="booking-group">
+                        <div class="booking-wrapper">
+                            <div class="booking-title">
+                                <h6>Sobre Booking</h6>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="booking-view">
+                                        <h6>Tipo de Booking</h6>
+                                        <p>
+                                            {% if booking.veiculo.com_motorista %} Com Motorista{% else %}Sem Motorista{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="booking-view">
+                                        <h6>Duração</h6>
+                                        <p>{{booking.duracao}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="booking-view">
+                                        <h6>Status</h6>
+                                        <span class="badge  
+                                        {% if booking.status == 'Pendente' %}
+                                            badge-light-secondary
+                                        {% elif booking.status == 'Cancelado' %}
+                                            badge-light-danger
+                                        {% elif booking.status == 'Reprovado' %}
+                                            badge-light-danger
+                                        {% elif booking.status == 'Aprovado' %}
+                                            badge-light-success
+                                        {% else %}
+                                            badge-light-secondary
+                                        {% endif %}
+                                        ">{{booking.status}}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="booking-view">
+                                        <h6>Local de Entrega</h6>
+                                        <p>{{booking.local_entrega}}</p>
+                                        <p>{{booking.data_entrega}} {{booking.hora_entrega}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="booking-view">
+                                        <h6>Local de Devolução</h6>
+                                        <p>{{booking.local_devolucao}}</p>
+                                        <p>{{booking.data_devolucao}} {{booking.hora_devolucao}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="booking-view">
+                                        <h6>Nota do Proprietário</h6>
+                                        <p>{{booking.observacao_dono|safe}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="booking-wrapper">
+                            <div class="booking-title">
+                                <h6>Proprietário</h6>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-4 col-md-8">
+                                    <div class="booking-view">
+                                        <h6>{{booking.dono.get_full_name}}</h6>
+                                        <p>{{booking.dono.proprietario.telefone}}</p>
+                                        <p>{{booking.dono.email}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="booking-view">
+                                        <h6>Endereço</h6>
+                                        <p>{{booking.dono.proprietario.localizacao}}</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-btn modal-btn-sm text-end">
+                        <a href="javascript:void(0);" data-bs-target="#start_ride" data-bs-toggle="modal" data-bs-dismiss="modal" class="btn btn-primary">
+                            Fechar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+    
+{% endblock content %}

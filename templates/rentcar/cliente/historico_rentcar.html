@@ -1,0 +1,173 @@
+{% extends "rentcar/layout/base_layout_cliente.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{config}} - Histórico!
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+<div class="historicos">
+    <div class="historico-content">
+
+        <div class="historico-body">
+            <div class="historico-list mb-2">
+                <div class="historico-list-header">
+                    <div class="historico-date">
+                        <span>{{historico.servico}}</span>
+                    </div>
+                </div>
+
+                <div class="historico-list-header my-2">
+                    <div class="historico-date">
+                        <span>{{historico.data_modificado}}</span>
+                    </div>
+                    <div class="historico-status">
+                        {% if historico.status == 'Pendente' %}
+                        <span class="text-primary">{{historico.status}}</span>
+                        {% elif historico.status == 'Completo' %}
+                        <span class="text-smart">{{historico.status}}</span>
+                        {% elif historico.status == 'Cancelado' %}
+                        <span class="text-danger">{{historico.status}}</span>
+                        {% elif historico.status == 'Negociação' %}
+                        <span class="text-secondary">{{historico.status}}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="historico-list-body py-2">
+                    <div class="historico-list-local-1 border-top py-2">
+                        <i class="fa fa-location-arrow text-smart"></i> <span>{{historico.local1}}</span>
+                    </div>
+                    <div class="historico-list-local-1 py-2 border-top border-bottom">
+                        <i class="fa fa-location text-smart-90"></i> <span>{{historico.local2}}</span>
+                    </div>
+
+                    {% if historico.status != 'Cancelado' %}
+                    <div class="my-2">
+                        <a href="{% url 'rentcar-historico-cancelar' historico.pk %}" class="btn btn-danger w-100">Cancelar</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="my-2 text-primary">
+                {% if historico.servico.servico == 'Rentcar' %}
+                    <div class="history">
+                        <div class="history-content">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div>
+                                    <h6 class="text-muted">Duração:</h6>
+                                    <h6>1</h6>
+                                    <h6>{{historico.pedido.duracao}}</h6>
+                                </div>
+
+                                <div>
+                                    <h6 class="text-muted">Condição:</h6>
+                                    <h6>{{historico.veiculo_rentcar.condicao_aplicada}}</h6>
+                                    <h6>{{historico.veiculo_rentcar.condicao_aplicada}}</h6>
+                                </div>
+
+                                <div>
+                                    <h6 class="text-muted">Total:</h6>
+                                    <h6>{{historico.veiculo_rentcar.preco}} MT</h6>
+                                    <h6>{{historico.pedido.preco_estimativa}} MT</h6>
+                                </div>
+                                
+                            </div>
+
+                            <div class="histtory-propreitario">
+                                <div class="perfil mb-2">
+                                    <div class="img-perfil">
+                                        {% if historico.veiculo_rentcar.proprietario.proprietario.foto_perfil %}
+                                        <img class="avatar" src="{{historico.veiculo_rentcar.proprietario.proprietario.foto_perfil.url}}" alt="{{user.get_full_name}}">
+                                        {% else %}
+                                        <span class="avatar"><i class="fa fa-user-circle fa-3x"></i></span>
+                                        {% endif %}
+                                    </div>
+
+                                    <h5 class="w-100 d-flex flex-wrap me-2">{{historico.veiculo_rentcar.proprietario.get_full_name}}</h5>
+                                </div>
+
+                                <div class="contacto">
+                                    <a href="mailto:{{historico.veiculo_rentcar.proprietario.email}}"> <i class="bx bx-message-detail"></i></a>
+                                    <a href="tel:+258{{historico.veiculo_rentcar.proprietario.proprietario.telefone}}"> <i class="bx bx-phone-call"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="history-car flex-column">
+                                <div class="car-img d-flex gap-2 align-items-start mb-2">
+                                    {% if historico.veiculo_rentcar.imagem_veiculo %}
+                                    <img src="{{historico.veiculo_rentcar.imagem_veiculo.url}}" alt="">
+                                    {% endif %}
+
+                                    <div>
+                                        <h5>{{historico.veiculo_rentcar.preco}} MT/{{historico.veiculo_rentcar.condicao_aplicada}}</h5>
+                                        <small class="text-muted">{{historico.veiculo_rentcar.localizacao}}</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div>
+                                        <h6 class="text-muted">Modelo:</h6>
+                                        <h6 class="text-capitalize">{{historico.veiculo_rentcar.marca}} {{historico.veiculo_rentcar}}</h6>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="text-muted">Transmissão:</h6>
+                                        <h6 class="text-capitalize">{{historico.veiculo_rentcar.transmissao}}</h6>
+                                    </div>
+                                    
+                                    <div>
+                                        <h6 class="text-muted">Combustivel:</h6>
+                                        <h6 class="text-capitalize">{{historico.veiculo_rentcar.combustivel}}</h6>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div>
+                                        <h6 class="text-muted">Placa:</h6>
+                                        <h6>{{historico.veiculo_rentcar.placa}}</h6>
+                                    </div>
+
+                                    <div>
+                                        <h6 class="text-muted">Ano:</h6>
+                                        <h6>{{historico.veiculo_rentcar.ano}}</h6>
+                                    </div>
+
+                                    <div>
+                                        <h6 class="text-muted">Motorista:</h6>
+                                        {% if historico.veiculo_rentcar.com_motorista %}
+                                        <h6>Com Motorista</h6>
+                                        {% else %}
+                                        <h6>Sem Motorista</h6>
+                                        {% endif %}
+                                    </div>
+                                    
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                {% elif historico.servico.servico == 'Delivery' %}
+                    Delivery
+                {% else %}
+                    <div>
+                        rtjrjjr {{historico.servico}}
+                    </div>
+                {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

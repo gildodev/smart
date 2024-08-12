@@ -1,0 +1,528 @@
+{% extends "rentcar/layout/base_layout.html" %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{config}} - Seja Bem-vindo a Rent a Car
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+<style>
+    .slider-img{
+        height: 400px !important;
+    }
+</style>
+{% endblock cssExtra %}
+
+{% block jsExtra %}
+    
+
+{% endblock jsExtra %}
+{% comment %} content {% endcomment %}
+{% block content %}
+
+
+<section class="banner-section banner-slider">
+    <div class="container">
+        <div class="home-banner">
+            {% for slide in slides %}
+                {% if slide.mostrar_tudo %}
+                <div class="row align-items-center">
+                    <div class="col-lg-6" data-aos="fade-down">
+                        <h1><span class="text-success-light">{{slide}}</span> <br>
+                        {{slide.subtitulo}}</h1>
+                        <p>{{slide.descricao}}</p>
+                    </div>
+    
+                    <div class="col-lg-6" data-aos="fade-down">
+                        <div class="banner-imgs">
+                            <img src="{{slide.imagem_slide.url}}" class="img-fluid aos" alt="bannerimage">
+                        </div>
+                    </div>
+                </div>
+                {% elif slide.apenas_imagem %}
+                    <div class="slider-img">
+                        <img src="{{slide.imagem_slide.url}}" alt="Img">
+                    </div>
+
+                {% endif %}
+            {% endfor %}
+            
+        </div>
+    </div>
+</section>
+
+
+<div class="section-search">
+    <div class="container">
+        <div class="search-box-banner">
+            <form action="https://dreamsrent.dreamstechnologies.com/html/listing-grid.html">
+                <ul class="align-items-center">
+                    <li class="column-group-main">
+                        <div class="input-block">
+                            <label>Local de Entrega</label>
+                            <div class="group-img">
+                                <input type="text" name="entrega" class="form-control" placeholder="Entre cidade, Aereporto, etc...">
+                                <span><i class="feather-map-pin"></i></span>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="column-group-main">
+                        <div class="input-block">
+                            <label>Data de Entrega</label>
+                        </div>
+                        <div class="input-block-wrapp">
+                            <div class="input-block date-widget">
+                                <div class="group-img">
+                                    <input type="text" name="data_entrega" class="form-control datetimepicker" placeholder="DD/MM/YYYY">
+                                    <span><i class="feather-calendar"></i></span>
+                                </div>
+                            </div>
+                            <div class="input-block time-widge">
+                                <div class="group-img">
+                                    <input type="text" name="hora_entrega" class="form-control timepicker" placeholder="11:00 AM">
+                                    <span><i class="feather-clock"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="column-group-main">
+                        <div class="input-block">
+                            <label>Data de Devolução</label>
+                        </div>
+                        <div class="input-block-wrapp">
+                            <div class="input-block date-widge">
+                                <div class="group-img">
+                                    <input type="text" name="data_devolucao" class="form-control datetimepicker" placeholder="DD/MM/YYYY">
+                                    <span><i class="feather-calendar"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="input-block time-widge">
+                                <div class="group-img">
+                                    <input type="text" name="hora_devolucao" class="form-control timepicker" placeholder="11:00 AM">
+                                    <span><i class="feather-clock"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="column-group-last">
+                        <div class="input-block">
+                            <div class="search-btn">
+                                <button class="btn search-button bg-success border-success" type="submit"> <i class="fa fa-search" aria-hidden="true"></i>Pesquisar</button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Os melhores carros -->
+<section class="section popular-services popular-explore">
+    <div class="container">
+        <div class="section-heading" data-aos="fade-down">
+            <h2>Explore os melhores carros </h2>
+            <p>Aqui vais encontrar os melhores carros</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12" data-aos="fade-down">
+                <div class="listing-tabs-group">
+                    <ul class="nav listing-buttons gap-3" data-bs-tabs="tabs">
+                    {% for marca in marcas %}
+                        {% if marca.marca_veiculos.all %}
+                        <li>
+                            <a class="{% if forloop.first %}active{% endif %}" aria-current="true" data-bs-toggle="tab" href="#marca-{{marca.pk}}">
+                                <span>{% if marca.imagem_marca %}<img src="{{marca.imagem_marca.url}}" alt="{{marca}}">{% endif %}</span>
+                                {{marca}}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            {% for marca in marcas %}
+            {% if marca.marca_veiculos.all %}
+            <div class="tab-pane {% if forloop.first %} active {% endif %}" id="marca-{{marca.pk}}">
+                <div class="row">
+                    {% for veiculo in marca.marca_veiculos.all %}
+                        <div class="col-md-4 mb-2">
+                            <div class="listing-item">
+                                <div class="listing-img">
+                                    <div class="img-slider owl-carousel">
+                                        <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">
+                                            <img src="{{veiculo.imagem_veiculo.url}}" class="img-fluid" alt="{{veiculo.marca}}">
+                                        </a>
+                                        {% if veiculo.galeria.all %}
+                                        {% for galeria in veiculo.galeria.all %}
+                                            <div class="slide-images">
+                                                <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">
+                                                    <img src="{{galeria.imagem_galeria.url}}" class="img-fluid" alt="{{veiculo.marca}}">
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="fav-item justify-content-end">
+                                        <span class="img-count"><i class="feather-image"></i>{{veiculo.galeria.count}}</span>
+                                        <a href="javascript:void(0)" class="fav-icon">
+                                            <i class="feather-heart"></i>
+                                        </a>
+                                    </div>
+
+                                    <span class="featured-text">{{veiculo.marca}}</span>
+                                </div>
+
+                                <div class="listing-content">
+                                    <div class="listing-features d-flex align-items-end justify-content-between">
+                                        <div class="list-rating">
+                                            <a href="javascript:void(0)" class="author-img">
+                                                {% if veiculo.user.foto_perfil %}
+                                                <img src="{{veiculo.user.foto_perfil.url}}" alt="author">
+                                                {% else %}
+                                                    <div class="rounded-circle avatar avatar-xs bg-light d-flex align-items-center justify-content-center "><i class="fa fa-user-circle fa-5x text-success"></i></div>
+                                                {% endif %}
+                                            </a>
+                                            <h3 class="listing-title">
+                                                <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">{{veiculo.marca}} {{veiculo}}</a>
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="listing-details-group">
+                                        <ul>
+                                            <li>
+                                                <span><i class="fa fa-gas-pump"></i></span>
+                                                <p class="text-capitalize">{{veiculo.combustivel}}</p>
+                                            </li>
+
+                                            <li>
+                                                <span><i class="fa fa-screwdriver"></i></span>
+                                                <p class="text-capitalize">{{veiculo.transmissao}}</p>
+                                            </li>
+
+                                            <li>
+                                                <span><i class="fa fa-screwdriver"></i></span>
+                                                <p class="{% if not veiculo.com_motorista %}text-decoration-line-through  text-danger {% endif %}">Motorista</p>
+                                            </li>
+                                        </ul>
+                                        <ul>
+                                            <li>
+                                                <span><i class="fa fa-door-open"></i></span>
+                                                <p class="text-capitalize">{{veiculo.numero_portas}} portas</p>
+                                            </li>
+
+                                            <li>
+                                                <span><i class="fa fa-person"></i></span>
+                                                <p class="text-capitalize">{{veiculo.numero_pessoas}} pessoas</p>
+                                            </li>
+
+                                            <li>
+                                                <span><i class="fa fa-calendar-day"></i></span>
+                                                <p class="text-capitalize">{{veiculo.ano}} </p>
+                                            </li>
+
+                                    
+                                        </ul>
+                                    </div>
+
+                                    <div class="listing-location-details">
+                                        <div class="listing-price">
+                                            <span><i class="feather-map-pin"></i></span>{{veiculo.localizacao}}
+                                        </div>
+                                        <div class="listing-price">
+                                            <h6>{{veiculo.preco}} MT<span>/ {{veiculo.condicao_aplicada}}</span></h6>
+                                        </div>
+                                    </div>
+
+                                    <div class="listing-button">
+                                        <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}" class="btn btn-order"><span><i class="feather-calendar me-2"></i></span>Alugar Agora</a>
+                                    </div>
+                                </div>
+
+                                <div class="feature-text">
+                                    <span class="bg-danger">Promoção</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Tipos de veiculos -->
+<section class="section popular-car-type">
+    <div class="container">
+        <div class="section-heading" data-aos="fade-down">
+            <h2>Veículos Mais Populares</h2>
+            <p></p>
+        </div>
+        
+        <div class="row">
+            <div class="popular-slider-group">
+                <div class="owl-carousel popular-cartype-slider owl-theme">
+                    {% for categoria in categorias %}
+                        {% if categoria.categoria_veiculos.all %}
+                        <div class="listing-owl-item">
+                            <div class="listing-owl-group">
+                                <div class="listing-owl-img">
+                                    <img src="{{categoria.imagem_categoria.url}}" class="img-fluid" alt="{{categoria.imagem_categoria.url}}">
+                                </div>
+                                <h6>{{categoria}}</h6>
+                                <p class="text-capitalize">{{categoria.categoria_veiculos.count}} {{categoria}}(s)</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    
+    </div>
+</section>
+
+
+<!-- Com Motorista -->
+{% if motorista %}
+<section class="section popular-services">
+    <div class="container">
+        <div class="section-heading" data-aos="fade-down">
+            <h2>Alugue carros com Motorista</h2>
+            <p>Escolha dentre vários veículos com motorista</p>
+        </div>
+
+        <div class="row">
+            <div class="popular-slider-group">
+                <div class="owl-carousel rental-deal-slider owl-theme">
+                    {% for veiculo in motorista %}
+                    <div class="rental-car-item">
+                        <div class="listing-item mb-0">
+                            <div class="listing-img">
+                                <div class="img-slider owl-carousel">
+                                    <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">
+                                        <img src="{{veiculo.imagem_veiculo.url}}" class="img-fluid" alt="{{veiculo.marca}}">
+                                    </a>
+                                    {% if veiculo.galeria.all %}
+                                        {% for galeria in veiculo.galeria.all %}
+                                            <div class="slide-images">
+                                                <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">
+                                                    <img src="{{galeria.imagem_galeria.url}}" class="img-fluid" alt="{{veiculo.marca}}">
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="fav-item justify-content-end">
+                                    <a href="javascript:void(0)" class="fav-icon">
+                                    <i class="feather-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="listing-content">
+                                <div class="listing-features">
+                                    <div class="fav-item-rental">
+                                        <div class="featured-text">{{veiculo.preco}} MT<span>/{{veiculo.condicao_aplicada}}</span></div>
+                                    </div>
+                                    <h3 class="listing-title">
+                                        <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">{{veiculo}}</a>
+                                    </h3>
+                                </div>
+
+                                <div class="listing-details-group">
+                                    <ul>
+                                        <li>
+                                            <span><i class="fa fa-gas-pump"></i></span>
+                                            <p class="text-capitalize">{{veiculo.combustivel}}</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-screwdriver"></i></span>
+                                            <p class="text-capitalize">{{veiculo.transmissao}}</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-screwdriver"></i></span>
+                                            <p class="{% if not veiculo.com_motorista %}text-decoration-line-through  text-danger {% endif %}">Motorista</p>
+                                        </li>
+                                    </ul>
+                                    <ul>
+                                        <li>
+                                            <span><i class="fa fa-door-open"></i></span>
+                                            <p class="text-capitalize">{{veiculo.numero_portas}} portas</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-person"></i></span>
+                                            <p class="text-capitalize">{{veiculo.numero_pessoas}} pessoas</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-calendar-day"></i></span>
+                                            <p class="text-capitalize">{{veiculo.ano}} </p>
+                                        </li>
+
+                                
+                                    </ul>
+                                </div>
+
+
+                                <div class="listing-button">
+                                    <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}" class="btn btn-order"><span><i class="feather-calendar me-2"></i></span>Alugar Agora</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+<!-- Sem Motoristas -->
+{% if semmotorista %}
+<section class="section popular-services">
+    <div class="container">
+        <div class="section-heading" data-aos="fade-down">
+            <h2>Sem Motorista</h2>
+            <p>Escolha dentre vários veículos sem motorista</p>
+        </div>
+
+        <div class="row">
+            <div class="popular-slider-group">
+                <div class="owl-carousel rental-deal-slider owl-theme">
+                    {% for veiculo in semmotorista %}
+                    <div class="rental-car-item">
+                        <div class="listing-item mb-0">
+                            <div class="listing-img">
+                                <div class="img-slider h-100 w-100 owl-carousel">
+                                    <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}" class="h-100 w-100">
+                                        <img src="{{veiculo.imagem_veiculo.url}}" class="h-100 w-100" alt="{{veiculo.marca}}">
+                                    </a>
+                                    {% if veiculo.galeria.all %}
+                                        {% for galeria in veiculo.galeria.all %}
+                                            <div class="slide-image">
+                                                <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">
+                                                    <img src="{{galeria.imagem_galeria.url}}" class="img-fluid" alt="{{veiculo.marca}}">
+                                                </a>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="fav-item justify-content-end">
+                                    <a href="javascript:void(0)" class="fav-icon">
+                                    <i class="feather-heart"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="listing-content">
+                                <div class="listing-features">
+                                    <div class="fav-item-rental">
+                                        <div class="featured-text">{{veiculo.preco}} MT<span>/{{veiculo.condicao_aplicada}}</span></div>
+                                    </div>
+                                    <h3 class="listing-title">
+                                        <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}">{{veiculo}}</a>
+                                    </h3>
+                                </div>
+
+                                <div class="listing-details-group">
+                                    <ul>
+                                        <li>
+                                            <span><i class="fa fa-gas-pump"></i></span>
+                                            <p class="text-capitalize">{{veiculo.combustivel}}</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-screwdriver"></i></span>
+                                            <p class="text-capitalize">{{veiculo.transmissao}}</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-screwdriver"></i></span>
+                                            <p class="{% if not veiculo.com_motorista %}text-decoration-line-through  text-danger {% endif %}">Motorista</p>
+                                        </li>
+                                    </ul>
+                                    <ul>
+                                        <li>
+                                            <span><i class="fa fa-door-open"></i></span>
+                                            <p class="text-capitalize">{{veiculo.numero_portas}} portas</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-person"></i></span>
+                                            <p class="text-capitalize">{{veiculo.numero_pessoas}} pessoas</p>
+                                        </li>
+
+                                        <li>
+                                            <span><i class="fa fa-calendar-day"></i></span>
+                                            <p class="text-capitalize">{{veiculo.ano}} </p>
+                                        </li>
+
+                                
+                                    </ul>
+                                </div>
+
+
+                                <div class="listing-button">
+                                    <a href="{% url 'rentcar-detalhe-veiculo' veiculo.url %}" class="btn btn-order"><span><i class="feather-calendar me-2"></i></span>Alugar Agora</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
+
+<!-- Perguntas Frequentes -->
+{% if pergFreq %}
+<section class="section faq-section bg-light-primary">
+    <div class="container">
+    
+        <div class="section-heading" data-aos="fade-down">
+            <h2>Perguntas Frequentes</h2>
+            <p>Encontre aqui a reposta da sua dúvida</p>
+        </div>
+        
+        {% for perg in pergFreq %}
+        <div class="faq-info">
+            <div class="faq-card bg-white" data-aos="fade-down">
+                <h4 class="faq-title">
+                <a class="collapseds" data-bs-toggle="collapse" href="#perg-{{perg.pk}}" aria-expanded="{% if forloop.first %}true{% endif %}">How old do I need to be to rent a car?</a>
+                </h4>
+                <div id="perg-{{perg.pk}}" class="card-collapse collapse show"><p>{{perg.descrica|safe}}</p></div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    </div>
+</section>
+{% endif %}
+    
+    
+    
+{% endblock content %}

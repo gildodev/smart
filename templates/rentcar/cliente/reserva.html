@@ -1,0 +1,306 @@
+{% extends "rentcar/layout/base_layout_cliente.html" %}
+{% load static %}
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{veiculo}} - reserva
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+    .rentcar-detalhe-image{
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .rentcar-detalhe-image .img-main{
+        border-radius: 10px;
+        height: 100%;
+        width: 100%;
+    }
+
+    .rentcar-detalhe-image-thumbs{
+        height: 50px;
+        width: auto;
+        object-fit: cover;
+        margin-top: 5px;
+    }
+
+    .rentcar-detalhe-image-thumbs .img-main{
+        border-radius: 10px;
+        height: 100%;
+        width: 100%;
+    }
+
+    .rentcar-descricao{
+        position: relative;
+    }
+    .rentcar-descricao-preco{
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .rentcar-descricao-icons{
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: start; 
+    }
+</style>
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Turf.js for distance calculations -->
+    <script src="https://unpkg.com/@turf/turf"></script>
+
+    <script src="{% static 'js/rentcar/reserva.js'%}"></script>
+
+    <!-- Initialize Swiper -->
+    <script>
+        var swiperMain = new Swiper('.main-slider', {
+            loop: true,
+            spaceBetween: 10,
+            autoplay: true,
+            slidesPerView: 1,
+        });
+    </script>
+
+
+<script>
+    const textarea = document.getElementById('observacao_');
+    const output = document.getElementById('ovservacao');
+
+    textarea.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Impede a quebra de linha padrão no textarea
+
+            const currentText = textarea.value;
+            const newText = currentText + '\n'; // Adiciona uma quebra de linha no valor
+
+            textarea.value = newText; // Atualiza o texto no textarea
+            
+            // Atualiza o conteúdo do div com um novo parágrafo
+            const paragraphs = textarea.value.split('\n').map(line => `<p>${line}</p>`).join('');
+            output.innerHTML = paragraphs;
+            
+            // Foca o textarea novamente
+            textarea.focus();
+        }
+    });
+
+    textarea.addEventListener('input', function(event) {
+        output.innerHTML = output.value + textarea.value;
+    });
+</script>
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+<div class="container-fluid mt-5">
+    <div class="rentcar-main-car">
+        <div class="rentcar-detalhe card card-body px-0 border-0">
+            <div class="rentcar-detalhe-header">
+                <!-- Swiper -->
+                <div class="swiper-container main-slider">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="rentcar-detalhe-image">
+                                <img src="{{veiculo.imagem_veiculo.url}}" alt="" class="img-main">
+                            </div>
+                        </div>
+                        {% if veiculo.galeria.all %}
+                            {% for galeria in veiculo.galeria.all %}
+                            <div class="swiper-slide">
+                                <div class="rentcar-detalhe-image">
+                                    <img src="{{galeria.imagem_galeria.url}}" alt="" class="img-main">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="rentcar-detalhe-body">
+                <div class="rentcar-titulo text-capitalize shadow rounded-2 my-2 p-2">
+                    <h3>{{veiculo.marca}} {{veiculo}}</h3>
+                    <div class="d-flex justify-content-between">
+                        <h6 class="text-dark">Placa: <small class="text-smart">{{veiculo.placa}}</small></h6>
+                        <h6 class="text-dark">Status: <small class="{% if not veiculo.disponivel %} text-danger text-decoration-line-through{% else %}text-smart {% endif %}">Disponível </small></h6>
+                    </div>
+                    <small><i class="fa fa-location text-smart-90"></i> {{veiculo.localizacao}}</small>
+                </div>
+
+                <div class="rentcar-descricao text-capitalize shadow rounded-2 my-2 p-2">
+                    <h3 class="text-smart-90">Especificações:</h3>
+                    <div class="rentcar-descricao-preco mt-2 me-2">
+                        <div class="d-flex align-items-center badge bg-smart text-smart">{{veiculo.preco}} MT/{{veiculo.condicao_aplicada}}</div>
+                    </div>
+
+                    <div class="rentcar-descricao-icons mt-2">
+                        <div><i class="bx bx-calendar"></i> ano {{veiculo.ano}}</div>
+                        <div><i class="bx bx-door-open"></i> {{veiculo.numero_portas}} portas</div>
+                        <div><i class="bx bx-user"></i> {{veiculo.numero_pessoas}} passageiros</div>
+                    </div>
+                    
+                    <div class="rentcar-descricao-icons mt-2">
+                        <div><i class="bx bx-cog"></i> {{veiculo.transmissao}}</div>
+                        <div><i class="bx bx-gas-pump"></i> {{veiculo.combustivel}}</div>
+                        <div><i class="bx bx-user-pin"></i> 
+                            <span class="{% if not veiculo.com_motorista %} text-decoration-line-through {% endif %}">Motorista</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="rentcar-descricao mt-2">
+                        <a data-bs-toggle="collapse" href="#descricao" class="text-decoration-none text-smart">ver descrição</a>
+
+                        <div id="descricao" class="collapse">
+                            <p>{{veiculo.descricao|safe}}</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Proprietario -->
+                <div class="mb-2 shadow rounded-2 my-2 p-2">
+                    <div class="text-smart-90">
+                        <h4>Proprietário</h4>
+                    </div>
+
+                    <div class="bg-light rounded-2 d-flex gap-2 p-2 align-items-center">
+                        <div class="prop-img">
+                            {% if veiculo.proprietario.proprietario.foto_perfil %}
+                                <img class="avatar" src="{{veiculo.proprietario.proprietario.foto_perfil.url}}" alt="User">
+                            {% else %}
+                                <span class="avatar"><i class="fa fa-user-circle fa-2x"></i></span>
+                            {% endif %}
+                        </div>
+
+                        <div class="pt-2">
+                            <h5 class="text-capitalize">{{veiculo.proprietario.get_full_name}}</h5>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column">
+                        <a href="mailto:{{veiculo.proprietario.email}}"><i class="fa fa-envelope"></i> {{veiculo.proprietario.email}}</a>
+                        <a href="tel:+258{{veiculo.proprietario.proprietario.telefone}}"><i class="fa fa-phone"></i> +258{{veiculo.proprietario.proprietario.telefone}}</a>
+                        <div class="text-smart-90"><i class="fa fa-location"></i> {{veiculo.proprietario.proprietario.localizacao}}</div>
+                    </div>
+                </div>
+
+                <!-- Proprietario -->
+                {% if veiculo.termos.all %}
+                <div class="mb-2 shadow rounded-2 my-2 p-2">
+                    <div class="text-smart-90">
+                        <h4>Termos e Condições</h4>
+                    </div>
+
+                    {% for termos in veiculo.termos.all %}
+                    <a data-bs-toggle="collapse" href="#termos{{forloop.counter}}" class="text-decoration-none text-smart">{{termos}}</a>
+
+                    <div id="termos{{forloop.counter}}" class="collapse">
+                        <p>{{termos.descricao|safe}}</p>
+                    </div>
+                    {% endfor %}
+                    
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <button id="edit-reserva" class="position-fixed z-index-1 btn-success m-3 top-50 end-0 btn bg-smart"> <div class="fa fa-edit"></div></button>
+
+        <div class="reserva open">
+            <!-- Reserva -->
+            <div class="reserva-body">
+                <div class="reserva-header">
+                    <h3>Reserva</h3>
+                    <button id="open-reserva" class="btn btn-danger bg-transparent text-danger p-0 border-0 rounded-circle"><i class="fa fa-close"></i></button>
+                </div>
+                
+                <!-- Exibir mensagens de feedback -->
+                {% if messages %}
+                    <div class="alert-container my-2">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}warning{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+                                <small>{{ message }}</small>
+                                <button type="button" class="btn btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form id="request-cars" action="{% url 'rentcar-booking-confirmar' veiculo.url %}" method="post" class="pb-4">
+                    {% csrf_token %}
+                    <div class="reserva-form">
+                        <div class="position-relative mb-3">
+                            <div class="input-group smart-input-group">
+                                <input type="hidden" name="coordenadas_entregas" id="coordenadas_entregas">
+                                <input type="hidden"  id="lat" value="{{veiculo.latitude}}">
+                                <input type="hidden"  id="lng" value="{{veiculo.longitude}}">
+                                <input type="hidden" name="distancia" id="distancia">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-crosshairs text-smart"></i></span>
+                                <input type="text" class="form-control smart-form-control " required name="local-entrega" id="receber" placeholder="Local de Entrega">
+                            </div>
+                            <div id="startSuggestions" class="autocomplete-suggestions me-3"></div>
+                        </div>
+        
+                        <div class="position-relative">
+                            <div class="input-group smart-input-group">
+                                <input type="hidden" name="coordenadas_devolucao" id="coordenadas_devolucao">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-crosshairs text-danger"></i></span>
+                                <input type="text" class="form-control smart-form-control " required id="devolucao" name="local-devolucao" placeholder="Local de Devolução">
+                            </div>
+                            <div id="endSuggestions" class="autocomplete-suggestions me-3"></div>
+                        </div>
+    
+                        <div class="position-relative">
+                            <label for="datahoraentrega">Data e Hora de Entrega</label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-calendar text-smart"></i></span>
+                                <input type="datetime-local" class="form-control smart-form-control " required id="datahoraentrega" name="datahoraentrega" placeholder="Data de entrega">
+                            </div>
+                        </div>
+    
+                        <div class="position-relative">
+                            <label for="datahoradevolucao">Data e Hora de Devolução</label>
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-calendar text-smart"></i></span>
+                                <input type="datetime-local" class="form-control smart-form-control" required id="datahoradevolucao" name="datahoradevolucao" placeholder="Data de entrega">
+                            </div>
+                        </div>
+    
+    
+                        <div class="position-relative">
+                            <div class="input-group smart-input-group">
+                                <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-question text-danger"></i></span>
+                                <input type="hidden" name="observacao" id="ovservacao">
+                                <textarea rows="1" class="form-control smart-form-control" id="observacao_" placeholder="Alguma observação?"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="smart-rentcar-location-form-btns">
+                        <button class="btn btn-secondary bg-smart w-100" type="submit">Reservar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock content %}

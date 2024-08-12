@@ -1,0 +1,123 @@
+{% extends "rentcar/layout/base_layout_cliente.html" %}
+{% load static %}
+
+{% comment %} Include Title {% endcomment %}
+{% block title %}
+{{user.get_full_name}} - Minha Conta
+{% endblock title %}
+
+<!-- Css extra -->
+
+{% block cssExtra %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+{% endblock cssExtra %}
+
+{% comment %} Javascript {% endcomment %}
+{% block jsExtra %}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <!-- Turf.js for distance calculations -->
+    <script src="https://unpkg.com/@turf/turf"></script>
+    
+    <script src="{% static 'js/rentcar/reserva.js'%}"></script>
+
+{% endblock jsExtra %}
+
+{% comment %} content {% endcomment %}
+{% block content %}
+
+<div class="settings">
+    <div class="settings-info">
+        <form action="{% url 'rentcar-dashboard-minha-conta-post' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="profile-info-pic align-items-center">
+                <div class="profile-info-img">
+                    {% if not user.cliente.foto_perfil %}
+                        <div class="h-100 d-flex justify-content-center align-items-center"><i class="fa fa-camera-alt fa-3x"></i></div>
+                    {% else %}
+                        <img class="rounded-circle h-100 w-100" src="{{user.cliente.foto_perfil.url}}" alt="{{user.cliente}}">
+                        
+                    {% endif %}
+                    <div class="profile-edit-info">
+                        <label for="foto-perfil">
+                            <i class="feather-edit"></i>
+                        </label>
+                    </div>
+                </div>
+
+                <input type="file" name="imagem" id="foto-perfil" class="d-none">
+                <div class="profile-info-content text-white">
+                    <h6 class="text-white">Foto de perfil</h6>
+                    <p>PNG, JPEG no máximo 15 MB</p>
+                </div>
+            </div>
+
+            <div class="container-fluid py-2">
+                <!-- Exibir mensagens de feedback -->
+                {% if messages %}
+                    <div class="alert-container my-2">
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags == 'error' %}warning{% else %}success{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+
+                <div class="position-relative mb-2">
+                    <label>Nome <span class="text-danger">*</span></label>
+                    <div class="input-group smart-input-group">
+                        <input type="text" class="form-control smart-form-control ps-0" required name="nome" value="{{user.first_name}}" placeholder="Nome">
+                    </div>
+                </div>
+
+                <div class="position-relative mb-2">
+                    <label>Sobrenome <span class="text-danger">*</span></label>
+                    <div class="input-group smart-input-group">
+                        <input type="text" class="form-control smart-form-control ps-0" required value="{{user.last_name}}" name="sobrenome" placeholder="Sobrenome">
+                    </div>
+                </div>
+
+                <div class="position-relative mb-2">
+                    <label>Email <span class="text-danger">*</span></label>
+                    <div class="input-group smart-input-group">
+                        <input type="text" class="form-control smart-form-control ps-0" required name="email" value="{{user.email}}" placeholder="Email">
+                    </div>
+                </div>
+
+                <div class="position-relative mb-2">
+                    <label>Telefone <span class="text-danger">*</span></label>
+                    <div class="input-group smart-input-group">
+                        <input minlength="9" maxlength="9" type="text" class="form-control smart-form-control ps-0" required name="telefone" value="{{user.cliente.telefone}}" placeholder="Telefone">
+                    </div>
+                </div>
+
+                <div class="position-relative mb-2">
+                    <label>Localização <span class="text-danger">*</span></label>
+                    <div class="input-group smart-input-group">
+                        <span class="input-group-text smart-input-group-text"><i class="fa-solid fa-location-crosshairs text-smart"></i></span>
+                        <input type="text" class="form-control smart-form-control" value="{{user.cliente.localizacao}}" required name="localizacao" id="receber" placeholder="Localização">
+                    </div>
+                    <div id="startSuggestions" class="autocomplete-suggestions me-3 mb-2"></div>
+                </div>
+
+                <button type="submit" class="btn btn-success mt-5 w-100">Salvar</button>
+            </div>
+
+            <div class="profile-submit-btn">
+                
+            </div>
+            
+        </form>
+            
+    </div>
+</div>
+{% endblock content %}
