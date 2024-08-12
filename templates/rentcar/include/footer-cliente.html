@@ -1,0 +1,131 @@
+<footer class="footer bg-default">
+
+    <div class="footer-top aos" data-aos="fade-down">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="footer-widget footer-menu">
+                                <h5 class="footer-title">Sobre-nós</h5>
+                                <ul>
+                                    <li>
+                                        <a href="about.html">Quem Somos?</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="about.html"> Nossos Termos & Condições</a>
+                                    </li>
+
+                                    <li>
+                                        <a href="about.html">Nossas politicas de privacidades</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+
+                            <div class="footer-widget footer-menu">
+                                <h5 class="footer-title">Categorias</h5>
+                                <ul>
+                                    {% for categoria in categorias %}
+                                    <li>
+                                        <a href="javascript:void(0)">{{categoria}}</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <div class="col-lg-4 col-md-6">
+
+                            <div class="footer-widget footer-menu">
+                                <h5 class="footer-title">Nossos Serviços</h5>
+                                <ul>
+                                    <li>
+                                        <a href="javascript:void(0)">Rent a Car</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)">Táxi</a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)">Delivery</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="footer-contact footer-widget">
+                        <h5 class="footer-title">Contacte-nos</h5>
+                        <div class="footer-contact-info">
+                            <div class="footer-address">
+                                <span><i class="feather-phone-call"></i></span>
+                                <div class="addr-info">
+                                    <a href="tel:+258{{config.telefone}}">+ 258{{config.telefone}}</a>
+                                </div>
+                            </div>
+
+                            <div class="footer-address">
+                                <span><i class="feather-mail"></i></span>
+                                <div class="addr-info">
+                                    <a href="mailto:{{config.email}}">{{config.email}}</a>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="footer-social-widget">
+                            <ul class="nav-social">
+                                <li>
+                                    <a href="javascript:void(0)"><i class="fa-brands fa-facebook-f fa-facebook fi-icon"></i></a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)"><i class="fab fa-instagram fi-icon"></i></a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)"><i class="fab fa-behance fi-icon"></i></a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)"><i class="fab fa-twitter fi-icon"></i> </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)"><i class="fab fa-linkedin fi-icon"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer-bottom">
+        <div class="container">
+            <div class="copyright">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="copyright-text">
+                            <p>© 2024 {{config}}. Todos os direitos reservados.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <div class="copyright-menu">
+                            <div class="vistors-details">
+                                <p>Desenvolvido por <a href="tel:258873686545" class="fa fa-user-circle text-light" title="Gildo Nhamirre"></a></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</footer>

@@ -1,0 +1,40 @@
+<div class="menu">
+    <div class="menu-content">
+        <div class="menu-header">
+            <div class="menu-profile ">
+                <div class="menu-profile-img">
+                    {% if user.cliente.foto_perfil %}
+                        <img class="rounded-circle" src="{{user.cliente.foto_perfil.url}}" alt="{{user.get_full_name}}">
+                    {% else %}
+                        <span class="avatar"><i class="fa fa-user-circle fa-5x"></i></span>
+                    {% endif %}
+                </div>
+                
+                <div class="menu-profile-contacto">
+                    <h3 class="text-white p-0 m-0">{{user.get_full_name}}</h3>
+                    <a class="text-white p-0 m-0" href="mailto:{{user.email}}"><i class="fa fa-envelope"></i> {{user.email}}</a>
+                    <a class="text-white p-0 m-0" href="tel:+258{{user.cliente.telefone}}"><i class="fa fa-phone"></i> +258{{user.cliente.telefone}}</a>
+                </div>
+            </div>
+            <button id="menu-closed" class="btn btn-transparent border-0 text-danger pe-1 menu-closed rounded-circle "><i class="fa fa-close"></i></button>
+        </div>
+
+        <div class="menu-body">
+            <ul class="menu-list">
+                <li class="menu-list-item"><a href="{% url 'rentcar-home' %}"><i class="fa fa-home"></i> Página Inicial</a></li>
+                <li class="menu-sublist d-none">
+                    <a href=""> <i class="fa fa-history"></i> Histórico</a>
+                    <span id="menu-sublist"><i class="fa fa-chevron-down"></i></span>
+                    <ul class="menu-list">
+                        <li><a href=""> <i class="fab fa-servicestack"></i> Delivery</a></li>
+                        <li><a href=""> <i class="fab fa-servicestack"></i> Táxi</a></li>
+                    </ul>
+                </li>
+                <li class="menu-list-item"><a href="{% url 'rentcar-dashboard-minha-conta' %}"><i class="fa fa-user-circle"></i> Minha Conta</a></li>
+                <li class="menu-list-item"><a href="{% url 'rentcar-dashboard-minha-conta-change' %}"><i class="fa fa-key"></i> Segurança</a></li>
+                <li class="menu-list-item"><a href="{% url 'rentcar-home' %}"><i class="fa fa-circle-question"></i> Suporte</a></li>
+                <li class="menu-list-item"><a href="{% url 'smart-sair' %}"><i class="fa fa-sign-out"></i> Terminar sessão</a></li>
+            </ul>
+        </div>
+    </div>
+</div>

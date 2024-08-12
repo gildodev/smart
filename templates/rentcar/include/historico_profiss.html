@@ -1,0 +1,112 @@
+
+<div class="rentcar-profiss-historico ">
+
+    <div class='pendentes py-5' id="reserva-historico">
+    {% if pedidos_hoje_pendente %}
+        {% for reserva in pedidos_hoje_pendentes %}
+        <div class="profiss-reserva border mb-3 d-none">
+            <div class="profiss-reserva-header">
+                <div class="profiss-reserva-profile">
+                    <div class="profiss-reserva-profile-img">
+                        {% if reserva.cliente.cliente.foto_perfil %}
+                        <img src="{{reserva.cliente.cliente.foto_perfil.url}}" alt="{{reserva.cliente.get_full_name}}" height="50">
+                        {% else %}
+                        <i class="fa fa-user-circle fa-2x"></i>
+                        {% endif %}
+                    </div>
+                    <div class="profiss-reserva-profile-nome ">
+                        <h6 class="m-0 p-0">{{reserva.cliente.get_full_name}}</h6>
+                        <small class="d-flex gap-2 align-items-center"> <i class="fa fa-car"></i>{{reserva.veiculo.placa}}</small>
+                    </div>
+                </div>
+
+                <div class="profiss-reserva-preco">
+                    <p class="preco">{{reserva.veiculo.preco}} MT / {{reserva.veiculo.condicao_aplicada}}</p>
+                </div>
+            </div>
+            <div class="profiss-reserva-body">
+
+                <div class="d-flex p-2 align-items-center justify-content-between">
+                    <div><i class="fa fa-location-dot"></i> {{reserva.distancia}} Km</div>
+                    <div>{{reserva.data_submitido|date:'d/m/Y H:i'}}</div>
+                </div>
+
+                <div class="d-flex gap-2 p-2 justify-content-start flex-column bg-light text-smart-90">
+                    <div class="d-flex align-items-center small gap-2 text-smart"><i class="fa fa-location-dot"></i>{{reserva.local_entrega}}</div>
+                    <div class="d-flex align-items-center small gap-2"><i class="fa fa-location"></i> {{reserva.local_devolucao}}</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="profiss-reserva card card-body p-2 mb-5">
+            <div class="profiss-reserva-header">
+                <div class="profiss-reserva-profile">
+                    <div class="profiss-reserva-profile-img">
+                        {% if reserva.cliente.cliente.foto_perfil %}
+                        <img src="{{reserva.cliente.cliente.foto_perfil.url}}" alt="{{reserva.cliente.get_full_name}}" >
+                        {% else %}
+                        <span class="fa fa-user-circle fa-2x"></span>
+                        {% endif %}
+                    </div>
+                    <div class="profiss-reserva-profile-nome text-break">
+                        <h6 class="m-0 p-0">{{reserva.cliente.get_full_name}}</h6>
+                        <small class="d-flex gap-2 align-items-center text-smart"> <i class="fa fa-car text-smart-90"></i>{{reserva.veiculo.placa}}</small>
+                    </div>
+                </div>
+
+                <div class="profiss-reserva-preco rounded-2 p-2 d-flex flex-column flex-wrap shadow bg-smart">
+                    <p class="preco p-0 m-0 small">{{reserva.veiculo.preco}} MT/{{reserva.veiculo.condicao_aplicada}}</p>
+                    <p class="p-0 m-0 small">Duração: {{reserva.duracao}} Dia(s)</p>
+                    <p class="p-0 m-0 small">Subtotal: {{reserva.preco_estimativa}} MT</p>
+                </div>
+            </div>
+            <div class="profiss-reserva-body text-smart-90">
+                <h6 class="mt-2 px-2">{{reserva.marca}} {{reserva.veiculo}}</h6>
+                <div class="d-flex px-2 align-items-center justify-content-between">
+                    <div> {{reserva.data_entrega|date:'d/m/Y H:i'}}</div>
+                    <div>-</div>
+                    <div> {{reserva.data_devolucao|date:'d/m/Y H:i'}}</div>
+                </div>
+
+                <div class="d-flex px-2 align-items-center justify-content-between">
+                    <div><i class="fa fa-location-dot"></i> {{reserva.distancia}} Km</div>
+                    <div>
+                        {% if reserva.status != 'cancelado' %}
+                        <a href="tel:+258'+reservatelefone+'"><i class="fa fa-phone"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 p-2 justify-content-start flex-column bg-light text-smart-90">
+                    <div class="d-flex align-items-center small gap-2 text-smart"><i class="fa fa-location-dot"></i>{{reserva.local_entrega}}</div>
+                    <div class="d-flex align-items-center small gap-2"><i class="fa fa-location"></i> {{reserva.local_devolucao}}</div>
+                </div>
+
+            </div>
+
+            <div class="profiss-reserva-footer w-100  gap-2 d-flex justify-content-between">
+                <a href='cancelar' data-pk='{{reserva.pedido.pk}}' class="cancelar-reserva btn btn-outline-danger w-100">Cancelar</a>
+                <a data-pk='{{reserva.pk}}' 
+                data-foto='
+                {% if reserva.cliente.cliente.foto_perfil%}
+                {{reserva.cliente.cliente.foto_perfil.url}}
+                {% else %}
+                <span class="fa fa-user-circle fa-1x"></span>
+                {% endif %}
+                ' data-telefone='{{reserva.cliente.cliente.telefone}}' 
+                data-cliente='{{reserva.cliente.get_full_name}}' 
+                data-imagem='{{reserva.veiculo.imagem_veiculo.url}}' 
+                data-veiculo='{{reserva.marca}} {{reserva.veiculo}}' href='aceitar' class="aceitar-reserva btn bg-smart w-100">Aceitar</a>
+            </div>
+            
+        </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+   
+</div>
+
+{% for historico in user.historico_profissional.all %}
+    
+{% endfor %}

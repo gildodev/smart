@@ -1,0 +1,61 @@
+<div class="historico">
+    <div class="historico-content">
+        <div class="historico-header">
+            <h5 class="text-white">Históricos</h5>
+            <button id="historico-closed" class="btn btn-transparent pe-1 historico-closed rounded-circle border-0 text-danger"><i class="fa fa-close"></i></button>
+
+        </div>
+
+        <div class="historico-body">
+            {% if user.historico_cliente.all %}
+                {% for historico in user.historico_cliente.all %}
+                    <div class="historico-list mb-2">
+                        <div class="historico-list-header">
+                            <div class="historico-date">
+                                <span>{{historico.servico}}</span>
+                            </div>
+                        </div>
+
+                        <div class="historico-list-header">
+                            <div class="historico-date">
+                                <span>{{historico.data_modificado}}</span>
+                            </div>
+                            <div class="historico-status">
+                                {% if historico.status == 'Pendente' %}
+                                <span class="text-primary">{{historico.status}}</span>
+                                {% elif historico.status == 'Completo' %}
+                                <span class="text-smart">{{historico.status}}</span>
+                                {% elif historico.status == 'Cancelado' %}
+                                <span class="text-danger">{{historico.status}}</span>
+                                {% elif historico.status == 'Negociação' %}
+                                <span class="text-secondary">{{historico.status}}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="historico-list-body py-2">
+                            <div class="historico-list-local-1 border-top py-2">
+                                <i class="fa fa-location"></i> <span>{{historico.local1}}</span>
+                            </div>
+                            <div class="historico-list-local-1 py-2 border-top">
+                                <i class="fa fa-location-pin text-danger"></i> <span>{{historico.local2}}</span>
+                            </div>
+
+                            {% if historico.status != 'Cancelado' %}
+                              <div class="border-top pt-2">
+                                <a href="{% url 'rentcar-historico' historico.pk %}" class="btn  w-100 btn-secondary text-light">Mais Detalhes</a>
+                              </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% elif user.historico_profissional.all %}
+                {% include "rentcar/include/historico_profiss.html" %}
+            {% else %}
+                <div class="historico-list text-center">
+                    Nenhum histórico encontrado.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

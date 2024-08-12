@@ -1,0 +1,256 @@
+<header class="header ">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg header-nav h-auto">
+            <div class="navbar-header ">
+                <a id="mobile_btn" href="javascript:void(0);" class="text-light">
+                    <span  class="bar-icon text-light">
+                        <span style="color: white !important;" class="text-light"></span>
+                        <span style="color: white !important;" class="text-light"></span>
+                        <span style="color: white !important;" class="text-light"></span>
+                    </span>
+                </a>
+                <a href="{% url 'rentcar-home' %}" class="navbar-brand logo">
+                    {% if config.logotipo %}
+                        <img src="{{config.logotipo.url}}" class="logotipo">
+                    {% else %}
+                    {{config}}
+                    {% endif %}
+                </a>
+                <a href="{% url 'rentcar-home' %}" class="navbar-brand logo-small">
+                    {% if config.logotipo %}
+                        <img src="{{config.logotipo.url}}" class="logotipo">
+                    {% else %}
+                    {{config}}
+                    {% endif %}
+                </a>
+
+                <button class="btn badge position-relative d-md-none btn-primary rounded-circle" data-bs-toggle="modal" data-bs-target="#notificacao">
+                    <span class="bell-icon">
+                        <i class="fa fa-bell text-light"></i>
+                        <span class="position-absolute top-0 text-light">
+                            {% if user.notificacao_receptor.all %}
+                                user.notificacao_receptor.count
+                            {% endif %}
+                        </span>
+                    </span>
+                </button>
+
+            </div>
+
+            
+            <div class="main-menu-wrapper">
+                <div class="menu-header bg-success">
+                    <a href="{% url 'rentcar-home' %}" class="menu-logo">
+                        {% if config.logotipo %}
+                            <img src="{{config.logotipo.url}}" class="logotipo">
+                        {% else %}
+                        {{config}}
+                        {% endif %}
+                    </a>
+                    <a id="menu_close" class="menu-close text-light" href="javascript:void(0);"> <i class="fas fa-times"></i></a>
+                </div>
+                
+                <ul class="main-nav">
+                    <li class="menu-link"><a href="{% url 'rentcar-home' %}" class="{{h}}">Pagina Inicial</a></li>
+                    <li class="has-submenu">
+                        <a href="{% url 'rentcar-list' %}" class="{{v}}">Veiculos <i class="fas fa-chevron-down"></i></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'rentcar-novo' %}">Novo Veiculo</a></li>
+                            <li><a href="{% url 'rentcar-galeria' %}">Galeria</a></li>
+                            <li><a href="{% url 'rentcar-normas' %}">Normas</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-submenu">
+                        <a href="{% url 'rentcar-motorista' %}" class="{{m}}">Motoristas <i class="fas fa-chevron-down"></i></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'rentcar-motorista-novo' %}">Novo Motorista</a></li>
+                            <li><a href="{% url 'rentcar-home' %}">Viagens</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-submenu">
+                        <a href="{% url 'rentcar-motorista' %}" class="{{s}}">Seriços <i class="fas fa-chevron-down"></i></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'rentcar-pedidos' %}">Pedidos</a></li>
+                            <li><a href="{% url 'rentcar-home' %}">Reservas</a></li>
+                        </ul>
+                    </li>
+
+
+
+                    <li class="has-submenu">
+                        <a href="{% url 'rentcar-home' %}" class="{{f}}">Fale connosco <i class="fas fa-chevron-down"></i></a>
+                        <ul class="submenu">
+                            <li><a href="{% url 'rentcar-home' %}">Sobre-nós</a></li>
+                            <li><a href="{% url 'rentcar-home' %}">Contacte-nós</a></li>
+                            <li><a href="index-2.html">Termos e Condições</a></li>
+                            <li><a href="index-2.html">Politicas de Privacidade</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu d-md-none">
+                        <a href="#" class="">
+                        {% if not user.proprietario.foto_perfil %}
+                                <div class="user-img h-auto">
+                                    <span><i class="fa fa-user-circle text-light"></i></span>
+                                </div>
+                            {% else %}
+                                <span class="user-img">
+                                    <img class="rounded-circle avatar" src="{{user.proprietario.foto_perfil.url}}" alt="{{user.cliente}}">
+                                </span>
+                            {% endif %}
+                            <div><span class="user-text text-light">{{user.get_full_name}}</span></div>
+                        </a>
+                        <ul class="submenu">
+                            <li>
+                                <a class="" href="{% url 'rentcar-dashboard-minha-conta'  %}">
+                                    <i class="feather-settings"></i> Configurações
+                                </a>
+                            </li>
+                            <li>
+                                <a class="" href="{% url 'rentcar-home' %}">
+                                    <i class="feather-power"></i> Sair
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <ul class="nav header-navbar-rht my-0">
+
+                <li class="nav-item dropdown logged-item noti-nav noti-wrapper my-0">
+                    <a href="#" class="dropdown-toggle nav-link text-success-light" data-bs-toggle="dropdown">
+                        <span class="bell-icon"><i class="fa fa-bell"></i></span>
+                        {% if user.notificacao_receptor.all %}
+                            <span class="badge badge-pill"></span>
+                        {% comment %} {% else %} {% endcomment %}
+                        {% endif %}
+                        
+                    </a>
+                    <div class="dropdown-menu notifications">
+                        <div class="topnav-dropdown-header">
+                            <span class="notification-title">Notificações</span>
+                            <a href="{% url 'rentcar-notificacao-detele'  %}" class="clear-noti"> Limpar Todos </a>
+                        </div>
+                        <div class="noti-content h-auto">
+                            <ul class="notification-list">
+                                <li class="notification-message">
+                                    {% if user.notificacao_receptor.all %}
+                                        {% for notif in user.notificacao_receptor.all %}
+                                        <a class='mb-2'>
+                                            <div class="media d-flex">
+                                                <span class="avatar avatar-lg flex-shrink-0">
+                                                    <span class="fa fa-bell"></span>
+                                                </span>
+                                                <div class="media-body flex-grow-1">
+                                                    <p class="noti-details">{{notif|safe}}</p>
+                                                    <p class="noti-time"><span class="notification-time">{{notif.data_submitido}}</span></p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <a class='mb-2'>
+                                            <div class="media d-flex">
+                                                <span class="avatar avatar-lg flex-shrink-0">
+                                                    <span class="fa fa-bell"></span>
+                                                </span>
+                                                <div class="media-body flex-grow-1">
+                                                    <p class="noti-details">Sem Notificações</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="topnav-dropdown-footer d-none">
+                            <a href="#">Todas notificações</a>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item dropdown has-arrow logged-item my-0">
+                    <a href="#" class="dropdown-toggle nav-link d-flex align-items-center" data-bs-toggle="dropdown">
+                        {% if not user.proprietario.foto_perfil %}
+                            <div class="user-img h-auto">
+                                <span><i class="fa fa-user-circle text-light"></i></span>
+                            </div>
+                        {% else %}
+                            <span class="user-img">
+                                <img class="rounded-circle avatar" src="{{user.proprietario.foto_perfil.url}}" alt="{{user.cliente}}">
+                            </span>
+                        {% endif %}
+
+                        <div><span class="user-text text-light">{{user.get_full_name}}</span></div>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        
+                        <a class="dropdown-item" href="{% url 'rentcar-dashboard-minha-conta'  %}">
+                            <i class="feather-settings"></i> Configurações
+                        </a>
+                        <a class="dropdown-item" href="{% url 'smart-sair' %}">
+                            <i class="feather-power"></i> Sair
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="modal new-modal multi-step fade" id="notificacao" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header my-0 py-0">
+                <button type="button" class="close-btn" data-bs-dismiss="modal"><span>×</span></button>
+            </div>
+            <div class="modal-body py-0 my-0 ">
+                <div class="logged-item noti-nav noti-wrapper py-0">
+                    <div class="notifications py-0">
+                        <div class="topnav-dropdown-header d-flex justify-content-between">
+                            <span class="notification-title">Notificações</span>
+                            <a href="{% url 'rentcar-notificacao-detele'  %}" class="clear-noti"> Limpar Todos </a>
+                        </div>
+                        <div class="noti-content">
+                            <ul class="notification-list">
+                                <li class="notification-message">
+                                    {% if user.notificacao_receptor.all %}
+                                        {% for notif in user.notificacao_receptor.all %}
+                                        <a class='mb-2'>
+                                            <div class="media d-flex">
+                                                <span class="avatar avatar-lg flex-shrink-0">
+                                                    <span class="fa fa-bell"></span>
+                                                </span>
+                                                <div class="media-body flex-grow-1">
+                                                    <p class="noti-details">{{notif|safe}}</p>
+                                                    <p class="noti-time"><span class="notification-time">{{notif.data_submitido}}</span></p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <a class='mb-2'>
+                                            <div class="media d-flex">
+                                                <span class="avatar avatar-lg flex-shrink-0">
+                                                    <span class="fa fa-bell"></span>
+                                                </span>
+                                                <div class="media-body flex-grow-1">
+                                                    <p class="noti-details">Sem Notificações</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="topnav-dropdown-footer d-none">
+                            <a href="#">Todas notificações</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

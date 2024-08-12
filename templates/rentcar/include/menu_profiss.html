@@ -1,0 +1,37 @@
+<div class="menu">
+    <div class="menu-profile">
+        <div class="menu-profile-img">
+            {% if veiculo.proprietario.proprietario.foto_perfil %}
+                <img class="avatar" src="{{veiculo.proprietario.proprietario.foto_perfil.url}}" alt="{{veiculo.proprietario.get_full_name}}">
+            {% else %}
+                <span class="avatar"><i class="fa fa-user-circle fa-3x"></i></span>
+            {% endif %}
+        </div>
+        
+        <div class="menu-profile-contacto">
+            <a href="mailto:{{veiculo.proprietario.email}}"><i class="fa fa-envelope"></i> {{veiculo.proprietario.email}}</a>
+            <a href="tel:+258{{veiculo.proprietario.proprietario.telefone}}"><i class="fa fa-phone"></i> +258{{veiculo.proprietario.proprietario.telefone}}</a>
+        </div>
+    </div>
+
+    <ul class="menu-list">
+        <li class="menu-list-item"><a href="">Página Inicial</a></li>
+        <li class="menu-sublist">
+            <a href="">Histórico</a>
+            <ul class="menu-list">
+                <li><a href="">Rentcar</a></li>
+                <li><a href="">Delivery</a></li>
+                <li><a href="">Táxi</a></li>
+            </ul>
+        </li>
+
+        <li class="menu-sublist">
+            <a href="">Rentcar</a>
+            <ul class="menu-list">
+                <li><a href="">Rentcar</a></li>
+                <li><a href="">Delivery</a></li>
+                <li><a href="">Táxi</a></li>
+            </ul>
+        </li>
+    </il>
+</div>
